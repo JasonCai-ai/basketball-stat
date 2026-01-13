@@ -2,13 +2,30 @@
   <div class="export-buttons">
     <el-button type="primary" @click="exportDB" icon="Download">导出原始数据库</el-button>
     <el-button type="success" @click="exportExcel" icon="Document">导出Excel数据</el-button>
-    <input type="file" ref="fileInput" style="display: none" accept=".json" @change="handleFileImport" />
-    <el-button type="info" @click="triggerImportDB" icon="Upload">导入数据库</el-button>
+    <el-button type="info" @click="showHistoryDialog" icon="Upload">导入数据库</el-button>
   </div>
+
+  <!-- 历史比赛选择对话框 -->
+  <el-dialog v-model="dialogVisible" title="选择历史比赛" width="600px">
+    <div class="history-selector">
+      <el-select v-model="selectedYear" placeholder="选择年份" @change="loadYearGames" style="width: 150px; margin-right: 10px">
+        <el-option v-for="year in availableYears" :key="year" :label="year + '年'" :value="year" />
+      </el-select>
+      
+      <el-select v-model="selectedGame" placeholder="选择比赛" style="width: 400px" :loading="loading">
+        <el-option v-for="game in games" :key="game.date" :label="game.label" :value="game.date" />
+      </el-select>
+    </div>
+    
+    <template #footer>
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="loadHistoryGame" :loading="loading" :disabled="!selectedGame">导入比赛</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 import { useToastStore } from '../stores/toastStore';
 import { formatTime, formatLocalTime, formatGameTime } from '../utils/formatters';
@@ -17,7 +34,93 @@ import * as XLSX from 'xlsx';
 
 const gameStore = useGameStore();
 const toastStore = useToastStore();
-const fileInput = ref(null);
+
+// 历史比赛选择器
+const dialogVisible = ref(false);
+const selectedYear = ref(new Date().getFullYear());
+const selectedGame = ref('');
+const games = ref([]);
+const loading = ref(false);
+
+// 可选年份（从2024到当前年份）
+const availableYears = computed(() => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let year = 2024; year <= currentYear; year++) {
+    years.push(year);
+  }
+  return years.reverse();
+});
+
+// 显示历史比赛对话框
+const showHistoryDialog = () => {
+  dialogVisible.value = true;
+  selectedYear.value = new Date().getFullYear();
+  loadYearGames();
+};
+
+// 加载某年的比赛列表
+const loadYearGames = async () => {
+  loading.value = true;
+  games.value = [];
+  selectedGame.value = '';
+  
+  try {
+    const configUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${selectedYear.value}/basketball_files_config.json`;
+    const response = await fetch(configUrl);
+    
+    if (!response.ok) {
+      throw new Error('该年份暂无比赛数据');
+    }
+    
+    const config = await response.json();
+    games.value = Object.entries(config).map(([date, filename]) => ({
+      date,
+      filename,
+      label: `${date} 的比赛`
+    }));
+    
+    if (games.value.length === 0) {
+      toastStore.warning('该年份暂无比赛数据');
+    }
+  } catch (error) {
+    console.error('加载比赛列表失败:', error);
+    toastStore.error('加载失败: ' + error.message);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 加载历史比赛数据
+const loadHistoryGame = async () => {
+  if (!selectedGame.value) return;
+  
+  loading.value = true;
+  try {
+    const game = games.value.find(g => g.date === selectedGame.value);
+    if (!game) throw new Error('未找到比赛数据');
+    
+    const dataUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${selectedYear.value}/${game.filename}`;
+    const response = await fetch(dataUrl);
+    
+    if (!response.ok) {
+      throw new Error('加载比赛数据失败');
+    }
+    
+    const data = await response.json();
+    
+    // 调用 gameStore 的导入方法
+    await gameStore.loadHistoryData(data);
+    
+    toastStore.success(`已加载 ${selectedYear.value}-${selectedGame.value} 的比赛数据`);
+    dialogVisible.value = false;
+  } catch (error) {
+    console.error('加载历史比赛失败:', error);
+    toastStore.error('加载失败: ' + error.message);
+  } finally {
+    loading.value = false;
+  }
+};
 
 // 导出Excel数据
 const exportExcel = () => {
@@ -126,27 +229,6 @@ const exportDB = async () => {
     toastStore.error('导出数据库失败: ' + error.message);
   }
 };
-
-// 触发文件选择对话框
-const triggerImportDB = () => {
-  fileInput.value.click();
-};
-
-// 处理文件导入
-const handleFileImport = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  try {
-    const result = await gameStore.importDB(file);
-    toastStore.success(result);
-  } catch (error) {
-    toastStore.error('导入失败: ' + error.message);
-  }
-  
-  // 重置文件输入，以便于再次选择同一文件
-  fileInput.value.value = '';
-};
 </script>
 
 <style scoped>
@@ -154,5 +236,11 @@ const handleFileImport = async (event) => {
   margin: 20px 0;
   display: flex;
   gap: 10px;
+}
+
+.history-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 }
 </style> 

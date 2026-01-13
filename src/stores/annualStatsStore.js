@@ -89,7 +89,9 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
 
   // 获取文件配置
   async function fetchFilesConfig(year) {
-    const configUrl = `https://static-web.bigolive.tv/as/fhab-static/bigo-basketball/data/${year}/basketball_files_config.json`;
+    // 使用 GitHub Pages 或 jsDelivr CDN
+    // const configUrl = `https://cdn.jsdelivr.net/gh/JasonCai-ai/basketball-stat@main/public/data/${year}/basketball_files_config.json`;
+    const configUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/basketball_files_config.json`;
     const cacheKey = `config_${year}`;
     
     try {
@@ -119,7 +121,9 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
 
   // 获取单个比赛数据
   async function fetchGameData(year, date, filename) {
-    const dataUrl = `https://static-web.bigolive.tv/as/fhab-static/bigo-basketball/data/${year}/${filename}`;
+    // 使用 GitHub Pages 或 jsDelivr CDN
+    // const dataUrl = `https://cdn.jsdelivr.net/gh/JasonCai-ai/basketball-stat@main/public/data/${year}/${filename}`;
+    const dataUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/${filename}`;
     const cacheKey = `game_${year}_${date}`;
     
     try {
