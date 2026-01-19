@@ -1,0 +1,3475 @@
+{
+  "game": [
+    {
+      "id": "currentGame",
+      "players": [
+        {
+          "name": "庆敏",
+          "number": "8",
+          "team": "黑队",
+          "isPlaying": true,
+          "currentTime": 1094.0189999999998,
+          "totalTime": 2225.0669999999996,
+          "score": 21,
+          "fouls": 2,
+          "plusMinus": 2,
+          "presetId": 9
+        },
+        {
+          "name": "李陈超",
+          "number": "9",
+          "team": "黑队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 3063.0479999999993,
+          "score": 18,
+          "fouls": 3,
+          "plusMinus": -8,
+          "presetId": 10
+        },
+        {
+          "name": "晓涛",
+          "number": "00",
+          "team": "黑队",
+          "isPlaying": true,
+          "currentTime": 1880.0329999999992,
+          "totalTime": 2358.066999999999,
+          "score": 19,
+          "fouls": 2,
+          "plusMinus": -5,
+          "presetId": 2
+        },
+        {
+          "name": "楚放",
+          "number": "3",
+          "team": "红队",
+          "isPlaying": true,
+          "currentTime": 1094.0189999999998,
+          "totalTime": 2425.0399999999986,
+          "score": 15,
+          "fouls": 5,
+          "plusMinus": 5,
+          "presetId": 5
+        },
+        {
+          "name": "爱文",
+          "number": "5",
+          "team": "黑队",
+          "isPlaying": true,
+          "currentTime": 1526.0249999999992,
+          "totalTime": 3261.079999999999,
+          "score": 27,
+          "fouls": 2,
+          "plusMinus": -11,
+          "presetId": 6
+        },
+        {
+          "name": "诗胜",
+          "number": "6",
+          "team": "红队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 4027.0989999999983,
+          "score": 30,
+          "fouls": 3,
+          "plusMinus": -4,
+          "presetId": 7
+        },
+        {
+          "name": "林铎",
+          "number": "11",
+          "team": "黑队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 2025.0429999999992,
+          "score": 4,
+          "fouls": 0,
+          "plusMinus": -8,
+          "presetId": 12
+        },
+        {
+          "name": "伟国",
+          "number": "15",
+          "team": "红队",
+          "isPlaying": true,
+          "currentTime": 3139.054000000001,
+          "totalTime": 0,
+          "score": 12,
+          "fouls": 2,
+          "plusMinus": 14,
+          "presetId": 14
+        },
+        {
+          "name": "伯韬",
+          "number": "31",
+          "team": "红队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 0,
+          "score": 0,
+          "fouls": 0,
+          "plusMinus": 0,
+          "presetId": 20
+        },
+        {
+          "name": "锐斌",
+          "number": "20",
+          "team": "红队",
+          "isPlaying": true,
+          "currentTime": 105.001,
+          "totalTime": 4202.098000000001,
+          "score": 13,
+          "fouls": 1,
+          "plusMinus": 15,
+          "presetId": 16
+        },
+        {
+          "name": "屹剑",
+          "number": "33",
+          "team": "红队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 5210.116,
+          "score": 35,
+          "fouls": 4,
+          "plusMinus": 7,
+          "presetId": 21
+        },
+        {
+          "name": "张铖",
+          "number": "34",
+          "team": "黑队",
+          "isPlaying": true,
+          "currentTime": 615.0119999999998,
+          "totalTime": 2910.080999999999,
+          "score": 12,
+          "fouls": 4,
+          "plusMinus": -12,
+          "presetId": 22
+        },
+        {
+          "name": "洪鹏",
+          "number": "4",
+          "team": "红队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 1246.0489999999998,
+          "score": 4,
+          "fouls": 0,
+          "plusMinus": 4,
+          "presetId": 24
+        },
+        {
+          "name": "廖程",
+          "number": "23",
+          "team": "红队",
+          "isPlaying": true,
+          "currentTime": 573.0089999999999,
+          "totalTime": 2467.0349999999994,
+          "score": 8,
+          "fouls": 1,
+          "plusMinus": 12,
+          "presetId": 25
+        },
+        {
+          "name": "🐶哥",
+          "number": "96",
+          "team": "黑队",
+          "isPlaying": true,
+          "currentTime": 3642.0620000000035,
+          "totalTime": 1382.0519999999997,
+          "score": 9,
+          "fouls": 3,
+          "plusMinus": -15,
+          "presetId": 26
+        },
+        {
+          "name": "烟佬",
+          "number": "04",
+          "team": "红队",
+          "isPlaying": true,
+          "currentTime": 1605.027999999999,
+          "totalTime": 3344.084000000002,
+          "score": 23,
+          "fouls": 1,
+          "plusMinus": 2
+        },
+        {
+          "name": "黄志凯",
+          "number": "97",
+          "team": "黑队",
+          "isPlaying": false,
+          "currentTime": 0,
+          "totalTime": 3437.0559999999996,
+          "score": 19,
+          "fouls": 6,
+          "plusMinus": 2
+        }
+      ],
+      "isGameRunning": false,
+      "currentPeriod": 4,
+      "teamScores": {
+        "红队": 140,
+        "黑队": 129
+      },
+      "teamFouls": {
+        "红队": {
+          "1": 5,
+          "2": 3,
+          "3": 3,
+          "4": 6
+        },
+        "黑队": {
+          "1": 4,
+          "2": 3,
+          "3": 6,
+          "4": 9
+        }
+      },
+      "lastUpdateTime": null,
+      "gameStartTime": 1768822440484
+    }
+  ],
+  "details": [
+    {
+      "timestamp": 1768788775475,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768788776857,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768788779908,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768788782695,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": null
+    },
+    {
+      "timestamp": 1768788783724,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768788786090,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768788788873,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768788792275,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": null
+    },
+    {
+      "timestamp": 1768788794109,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "伯韬",
+      "number": "31",
+      "value": null
+    },
+    {
+      "timestamp": 1768788797607,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768788800291,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768788801674,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768788803157,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768788804774,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768788806124,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768788895123,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": null
+    },
+    {
+      "timestamp": 1768821749165,
+      "period": 1,
+      "gameTime": 0,
+      "type": "player-add",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768821753695,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768821757295,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768821759852,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768821760828,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768821762328,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768821774895,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768821776262,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768821777613,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": null
+    },
+    {
+      "timestamp": 1768822020315,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768822021982,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768822431476,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768822432984,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768822440484,
+      "period": 1,
+      "gameTime": 0,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768822528335,
+      "period": 1,
+      "gameTime": 87,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822545917,
+      "period": 1,
+      "gameTime": 105,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822610918,
+      "period": 1,
+      "gameTime": 170,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 3
+    },
+    {
+      "timestamp": 1768822686968,
+      "period": 1,
+      "gameTime": 246,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822702039,
+      "period": 1,
+      "gameTime": 261,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822720706,
+      "period": 1,
+      "gameTime": 280,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822741155,
+      "period": 1,
+      "gameTime": 300,
+      "type": "score",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822757035,
+      "period": 1,
+      "gameTime": 316,
+      "type": "score",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822774523,
+      "period": 1,
+      "gameTime": 334,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822788729,
+      "period": 1,
+      "gameTime": 348,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768822809233,
+      "period": 1,
+      "gameTime": 368,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822939769,
+      "period": 1,
+      "gameTime": 499,
+      "type": "foul",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768822941881,
+      "period": 1,
+      "gameTime": 501,
+      "type": "foul",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768822953952,
+      "period": 1,
+      "gameTime": 513,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768822968918,
+      "period": 1,
+      "gameTime": 528,
+      "type": "score",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823030452,
+      "period": 1,
+      "gameTime": 589,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823076653,
+      "period": 1,
+      "gameTime": 636,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 3
+    },
+    {
+      "timestamp": 1768823091515,
+      "period": 1,
+      "gameTime": 651,
+      "type": "foul",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823099287,
+      "period": 1,
+      "gameTime": 658,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768823101273,
+      "period": 1,
+      "gameTime": 660,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768823116220,
+      "period": 1,
+      "gameTime": 675,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768823118270,
+      "period": 1,
+      "gameTime": 677,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768823165563,
+      "period": 1,
+      "gameTime": 725,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823189771,
+      "period": 1,
+      "gameTime": 749,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823220154,
+      "period": 1,
+      "gameTime": 779,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823235455,
+      "period": 1,
+      "gameTime": 794,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823265540,
+      "period": 1,
+      "gameTime": 825,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 3
+    },
+    {
+      "timestamp": 1768823281660,
+      "period": 1,
+      "gameTime": 841,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823294522,
+      "period": 1,
+      "gameTime": 854,
+      "type": "foul",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823341439,
+      "period": 1,
+      "gameTime": 900,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823381999,
+      "period": 1,
+      "gameTime": 941,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823400873,
+      "period": 1,
+      "gameTime": 960,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823412906,
+      "period": 1,
+      "gameTime": 972,
+      "type": "foul",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823436089,
+      "period": 1,
+      "gameTime": 995,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768823437906,
+      "period": 1,
+      "gameTime": 997,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768823457273,
+      "period": 1,
+      "gameTime": 1016,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823478590,
+      "period": 1,
+      "gameTime": 1038,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823525807,
+      "period": 1,
+      "gameTime": 1085,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823572291,
+      "period": 1,
+      "gameTime": 1131,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768823573757,
+      "period": 1,
+      "gameTime": 1133,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768823575563,
+      "period": 1,
+      "gameTime": 1135,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768823576826,
+      "period": 1,
+      "gameTime": 1136,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768823578557,
+      "period": 1,
+      "gameTime": 1138,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768823580292,
+      "period": 1,
+      "gameTime": 1139,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768823607884,
+      "period": 1,
+      "gameTime": 1167,
+      "type": "foul",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823612157,
+      "period": 1,
+      "gameTime": 1171,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823622191,
+      "period": 1,
+      "gameTime": 1181,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823657492,
+      "period": 1,
+      "gameTime": 1217,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823670625,
+      "period": 1,
+      "gameTime": 1230,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": -1
+    },
+    {
+      "timestamp": 1768823678074,
+      "period": 1,
+      "gameTime": 1237,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823685375,
+      "period": 1,
+      "gameTime": 1244,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768823687210,
+      "period": 1,
+      "gameTime": 1246,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768823691310,
+      "period": 1,
+      "gameTime": 1250,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "洪鹏",
+      "number": "4",
+      "value": null
+    },
+    {
+      "timestamp": 1768823692958,
+      "period": 1,
+      "gameTime": 1252,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768823697441,
+      "period": 1,
+      "gameTime": 1256,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823709375,
+      "period": 1,
+      "gameTime": 1268,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823726875,
+      "period": 1,
+      "gameTime": 1286,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823758776,
+      "period": 1,
+      "gameTime": 1318,
+      "type": "foul",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768823819809,
+      "period": 1,
+      "gameTime": 1379,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823824809,
+      "period": 1,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768823941444,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768823942279,
+      "period": 1,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768823950678,
+      "period": 2,
+      "gameTime": 0,
+      "type": "period-change",
+      "team": "",
+      "player": "",
+      "number": "",
+      "value": 2
+    },
+    {
+      "timestamp": 1768823955977,
+      "period": 2,
+      "gameTime": 1515,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768823970244,
+      "period": 2,
+      "gameTime": 1529,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 3
+    },
+    {
+      "timestamp": 1768823993244,
+      "period": 2,
+      "gameTime": 1552,
+      "type": "score",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824026978,
+      "period": 2,
+      "gameTime": 1586,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824081919,
+      "period": 2,
+      "gameTime": 1641,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824094395,
+      "period": 2,
+      "gameTime": 1653,
+      "type": "foul",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824109378,
+      "period": 2,
+      "gameTime": 1668,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824149395,
+      "period": 2,
+      "gameTime": 1708,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824153662,
+      "period": 2,
+      "gameTime": 1713,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824168129,
+      "period": 2,
+      "gameTime": 1727,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824176762,
+      "period": 2,
+      "gameTime": 1736,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": -1
+    },
+    {
+      "timestamp": 1768824177695,
+      "period": 2,
+      "gameTime": 1737,
+      "type": "foul",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824192695,
+      "period": 2,
+      "gameTime": 1752,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824199550,
+      "period": 2,
+      "gameTime": 1759,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824232547,
+      "period": 2,
+      "gameTime": 1792,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824285113,
+      "period": 2,
+      "gameTime": 1844,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824356332,
+      "period": 2,
+      "gameTime": 1915,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824362864,
+      "period": 2,
+      "gameTime": 1922,
+      "type": "score",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824389569,
+      "period": 2,
+      "gameTime": 1949,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824429864,
+      "period": 2,
+      "gameTime": 1989,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 3
+    },
+    {
+      "timestamp": 1768824432448,
+      "period": 2,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768824439521,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768824440464,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768824481766,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768824482764,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": null
+    },
+    {
+      "timestamp": 1768824487314,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768824488683,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768824494331,
+      "period": 2,
+      "gameTime": 2053,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768824524081,
+      "period": 2,
+      "gameTime": 2083,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824545205,
+      "period": 2,
+      "gameTime": 2104,
+      "type": "foul",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824572534,
+      "period": 2,
+      "gameTime": 2132,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824591150,
+      "period": 2,
+      "gameTime": 2150,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824612500,
+      "period": 2,
+      "gameTime": 2172,
+      "type": "score",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824628049,
+      "period": 2,
+      "gameTime": 2187,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824637283,
+      "period": 2,
+      "gameTime": 2196,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": -1
+    },
+    {
+      "timestamp": 1768824637699,
+      "period": 2,
+      "gameTime": 2197,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": -1
+    },
+    {
+      "timestamp": 1768824638982,
+      "period": 2,
+      "gameTime": 2198,
+      "type": "score",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824660601,
+      "period": 2,
+      "gameTime": 2220,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824702883,
+      "period": 2,
+      "gameTime": 2262,
+      "type": "foul",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824716300,
+      "period": 2,
+      "gameTime": 2275,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824745600,
+      "period": 2,
+      "gameTime": 2305,
+      "type": "foul",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824768083,
+      "period": 2,
+      "gameTime": 2327,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768824795068,
+      "period": 2,
+      "gameTime": 2354,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824818302,
+      "period": 2,
+      "gameTime": 2377,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768824858384,
+      "period": 2,
+      "gameTime": 2417,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 3
+    },
+    {
+      "timestamp": 1768824878351,
+      "period": 2,
+      "gameTime": 2437,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768824879484,
+      "period": 2,
+      "gameTime": 2439,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768824881453,
+      "period": 2,
+      "gameTime": 2440,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768824882918,
+      "period": 2,
+      "gameTime": 2442,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": null
+    },
+    {
+      "timestamp": 1768824887018,
+      "period": 2,
+      "gameTime": 2446,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768824888119,
+      "period": 2,
+      "gameTime": 2447,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768824974518,
+      "period": 2,
+      "gameTime": 2534,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 3
+    },
+    {
+      "timestamp": 1768825003335,
+      "period": 2,
+      "gameTime": 2562,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 3
+    },
+    {
+      "timestamp": 1768825027186,
+      "period": 2,
+      "gameTime": 2586,
+      "type": "foul",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768825028319,
+      "period": 2,
+      "gameTime": 2587,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825037004,
+      "period": 2,
+      "gameTime": 2596,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768825037821,
+      "period": 2,
+      "gameTime": 2597,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768825069620,
+      "period": 2,
+      "gameTime": 2629,
+      "type": "score",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825135020,
+      "period": 2,
+      "gameTime": 2694,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825165770,
+      "period": 2,
+      "gameTime": 2725,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825167204,
+      "period": 2,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768825199470,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768825200754,
+      "period": 2,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768825206720,
+      "period": 2,
+      "gameTime": 2766,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768825256404,
+      "period": 2,
+      "gameTime": 2815,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825315888,
+      "period": 2,
+      "gameTime": 2875,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825341288,
+      "period": 2,
+      "gameTime": 2900,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825362038,
+      "period": 2,
+      "gameTime": 2921,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825403889,
+      "period": 2,
+      "gameTime": 2963,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825424722,
+      "period": 2,
+      "gameTime": 2984,
+      "type": "score",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825426172,
+      "period": 2,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768825448989,
+      "period": 3,
+      "gameTime": 0,
+      "type": "period-change",
+      "team": "",
+      "player": "",
+      "number": "",
+      "value": 3
+    },
+    {
+      "timestamp": 1768825480623,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768825482276,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768825613408,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768825615581,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768825616957,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768825618057,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768825782696,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768825783617,
+      "period": 3,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": null
+    },
+    {
+      "timestamp": 1768825784612,
+      "period": 3,
+      "gameTime": 3344,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768825836429,
+      "period": 3,
+      "gameTime": 3395,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768825882513,
+      "period": 3,
+      "gameTime": 3442,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825884780,
+      "period": 3,
+      "gameTime": 3444,
+      "type": "foul",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 1
+    },
+    {
+      "timestamp": 1768825900363,
+      "period": 3,
+      "gameTime": 3459,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768825924713,
+      "period": 3,
+      "gameTime": 3484,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 2
+    },
+    {
+      "timestamp": 1768825966047,
+      "period": 3,
+      "gameTime": 3525,
+      "type": "score",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 3
+    },
+    {
+      "timestamp": 1768825988114,
+      "period": 3,
+      "gameTime": 3547,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826064148,
+      "period": 3,
+      "gameTime": 3623,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826084948,
+      "period": 3,
+      "gameTime": 3644,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826103782,
+      "period": 3,
+      "gameTime": 3663,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826118149,
+      "period": 3,
+      "gameTime": 3677,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826130966,
+      "period": 3,
+      "gameTime": 3690,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768826132116,
+      "period": 3,
+      "gameTime": 3691,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768826134049,
+      "period": 3,
+      "gameTime": 3693,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768826136118,
+      "period": 3,
+      "gameTime": 3695,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768826138682,
+      "period": 3,
+      "gameTime": 3698,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768826140233,
+      "period": 3,
+      "gameTime": 3699,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768826158918,
+      "period": 3,
+      "gameTime": 3718,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826179649,
+      "period": 3,
+      "gameTime": 3739,
+      "type": "score",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826209883,
+      "period": 3,
+      "gameTime": 3769,
+      "type": "foul",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826238900,
+      "period": 3,
+      "gameTime": 3798,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826280502,
+      "period": 3,
+      "gameTime": 3840,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826312685,
+      "period": 3,
+      "gameTime": 3872,
+      "type": "foul",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826325734,
+      "period": 3,
+      "gameTime": 3885,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826336353,
+      "period": 3,
+      "gameTime": 3895,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826371885,
+      "period": 3,
+      "gameTime": 3931,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 3
+    },
+    {
+      "timestamp": 1768826377902,
+      "period": 3,
+      "gameTime": 3937,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": null
+    },
+    {
+      "timestamp": 1768826379285,
+      "period": 3,
+      "gameTime": 3938,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768826399403,
+      "period": 3,
+      "gameTime": 3958,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826429802,
+      "period": 3,
+      "gameTime": 3989,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 3
+    },
+    {
+      "timestamp": 1768826453820,
+      "period": 3,
+      "gameTime": 4013,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826482237,
+      "period": 3,
+      "gameTime": 4041,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768826483104,
+      "period": 3,
+      "gameTime": 4042,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768826549854,
+      "period": 3,
+      "gameTime": 4109,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826584654,
+      "period": 3,
+      "gameTime": 4144,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826623740,
+      "period": 3,
+      "gameTime": 4183,
+      "type": "foul",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826642054,
+      "period": 3,
+      "gameTime": 4201,
+      "type": "score",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 1
+    },
+    {
+      "timestamp": 1768826710738,
+      "period": 3,
+      "gameTime": 4270,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826718672,
+      "period": 3,
+      "gameTime": 4278,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826734956,
+      "period": 3,
+      "gameTime": 4294,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 3
+    },
+    {
+      "timestamp": 1768826835706,
+      "period": 3,
+      "gameTime": 4395,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826875757,
+      "period": 3,
+      "gameTime": 4435,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768826876474,
+      "period": 3,
+      "gameTime": 4435,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768826892524,
+      "period": 3,
+      "gameTime": 4452,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768826901708,
+      "period": 3,
+      "gameTime": 4461,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 3
+    },
+    {
+      "timestamp": 1768826988344,
+      "period": 3,
+      "gameTime": 4547,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827021592,
+      "period": 3,
+      "gameTime": 4581,
+      "type": "foul",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827037376,
+      "period": 3,
+      "gameTime": 4596,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768827038528,
+      "period": 3,
+      "gameTime": 4598,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768827042309,
+      "period": 3,
+      "gameTime": 4601,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768827043926,
+      "period": 3,
+      "gameTime": 4603,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": null
+    },
+    {
+      "timestamp": 1768827056742,
+      "period": 3,
+      "gameTime": 4616,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827069910,
+      "period": 3,
+      "gameTime": 4629,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827117110,
+      "period": 3,
+      "gameTime": 4676,
+      "type": "foul",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827158310,
+      "period": 3,
+      "gameTime": 4717,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768827159060,
+      "period": 3,
+      "gameTime": 4718,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768827162944,
+      "period": 3,
+      "gameTime": 4722,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827173494,
+      "period": 3,
+      "gameTime": 4733,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827205611,
+      "period": 3,
+      "gameTime": 4765,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827252145,
+      "period": 3,
+      "gameTime": 4811,
+      "type": "foul",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827264895,
+      "period": 3,
+      "gameTime": 4824,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827274995,
+      "period": 3,
+      "gameTime": 4834,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827300345,
+      "period": 3,
+      "gameTime": 4859,
+      "type": "score",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827317213,
+      "period": 3,
+      "gameTime": 4876,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827318645,
+      "period": 3,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768827319345,
+      "period": 4,
+      "gameTime": 0,
+      "type": "period-change",
+      "team": "",
+      "player": "",
+      "number": "",
+      "value": 4
+    },
+    {
+      "timestamp": 1768827336912,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": null
+    },
+    {
+      "timestamp": 1768827338035,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": null
+    },
+    {
+      "timestamp": 1768827363012,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768827367096,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768827392114,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768827394230,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768827405796,
+      "period": 4,
+      "gameTime": 4965,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768827416413,
+      "period": 4,
+      "gameTime": 4975,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827450380,
+      "period": 4,
+      "gameTime": 5009,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827481447,
+      "period": 4,
+      "gameTime": 5040,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768827482348,
+      "period": 4,
+      "gameTime": 5041,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768827484730,
+      "period": 4,
+      "gameTime": 5044,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "林铎",
+      "number": "11",
+      "value": null
+    },
+    {
+      "timestamp": 1768827485397,
+      "period": 4,
+      "gameTime": 5044,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": null
+    },
+    {
+      "timestamp": 1768827492332,
+      "period": 4,
+      "gameTime": 5051,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827510797,
+      "period": 4,
+      "gameTime": 5070,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827529764,
+      "period": 4,
+      "gameTime": 5089,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": 3
+    },
+    {
+      "timestamp": 1768827536464,
+      "period": 4,
+      "gameTime": 5095,
+      "type": "score",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": -1
+    },
+    {
+      "timestamp": 1768827579715,
+      "period": 4,
+      "gameTime": 5139,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827620731,
+      "period": 4,
+      "gameTime": 5180,
+      "type": "foul",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827690283,
+      "period": 4,
+      "gameTime": 5249,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827707382,
+      "period": 4,
+      "gameTime": 5266,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827762067,
+      "period": 4,
+      "gameTime": 5321,
+      "type": "foul",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827772200,
+      "period": 4,
+      "gameTime": 5331,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768827773467,
+      "period": 4,
+      "gameTime": 5332,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768827778352,
+      "period": 4,
+      "gameTime": 5337,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827787868,
+      "period": 4,
+      "gameTime": 5347,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827812267,
+      "period": 4,
+      "gameTime": 5371,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827842401,
+      "period": 4,
+      "gameTime": 5401,
+      "type": "foul",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827872251,
+      "period": 4,
+      "gameTime": 5431,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827873784,
+      "period": 4,
+      "gameTime": 5433,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": -1
+    },
+    {
+      "timestamp": 1768827874684,
+      "period": 4,
+      "gameTime": 5434,
+      "type": "score",
+      "team": "红队",
+      "player": "烟佬",
+      "number": "04",
+      "value": 1
+    },
+    {
+      "timestamp": 1768827891801,
+      "period": 4,
+      "gameTime": 5451,
+      "type": "score",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827914734,
+      "period": 4,
+      "gameTime": 5474,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768827917051,
+      "period": 4,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768827972453,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "李陈超",
+      "number": "9",
+      "value": null
+    },
+    {
+      "timestamp": 1768827973204,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": null
+    },
+    {
+      "timestamp": 1768827976637,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768827977519,
+      "period": 4,
+      "gameTime": 0,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": null
+    },
+    {
+      "timestamp": 1768827983936,
+      "period": 4,
+      "gameTime": 5543,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768827996052,
+      "period": 4,
+      "gameTime": 5555,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828014602,
+      "period": 4,
+      "gameTime": 5574,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828034721,
+      "period": 4,
+      "gameTime": 5594,
+      "type": "foul",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828053138,
+      "period": 4,
+      "gameTime": 5612,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828130654,
+      "period": 4,
+      "gameTime": 5690,
+      "type": "foul",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828146254,
+      "period": 4,
+      "gameTime": 5705,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828159221,
+      "period": 4,
+      "gameTime": 5718,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828175088,
+      "period": 4,
+      "gameTime": 5734,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828193995,
+      "period": 4,
+      "gameTime": 5753,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828206438,
+      "period": 4,
+      "gameTime": 5765,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828215505,
+      "period": 4,
+      "gameTime": 5775,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828253888,
+      "period": 4,
+      "gameTime": 5813,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828322073,
+      "period": 4,
+      "gameTime": 5881,
+      "type": "foul",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828337890,
+      "period": 4,
+      "gameTime": 5897,
+      "type": "foul",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828356590,
+      "period": 4,
+      "gameTime": 5916,
+      "type": "score",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828449325,
+      "period": 4,
+      "gameTime": 6008,
+      "type": "foul",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828453276,
+      "period": 4,
+      "gameTime": 6012,
+      "type": "sub-out",
+      "team": "黑队",
+      "player": "黄志凯",
+      "number": "97",
+      "value": null
+    },
+    {
+      "timestamp": 1768828463444,
+      "period": 4,
+      "gameTime": 6022,
+      "type": "sub-in",
+      "team": "黑队",
+      "player": "张铖",
+      "number": "34",
+      "value": null
+    },
+    {
+      "timestamp": 1768828496191,
+      "period": 4,
+      "gameTime": 6055,
+      "type": "score",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828497541,
+      "period": 4,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768828537325,
+      "period": 4,
+      "gameTime": 6096,
+      "type": "game-start",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    },
+    {
+      "timestamp": 1768828544058,
+      "period": 4,
+      "gameTime": 6103,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "诗胜",
+      "number": "6",
+      "value": null
+    },
+    {
+      "timestamp": 1768828545693,
+      "period": 4,
+      "gameTime": 6105,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": null
+    },
+    {
+      "timestamp": 1768828626033,
+      "period": 4,
+      "gameTime": 6185,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828643743,
+      "period": 4,
+      "gameTime": 6203,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828657843,
+      "period": 4,
+      "gameTime": 6217,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828684562,
+      "period": 4,
+      "gameTime": 6244,
+      "type": "foul",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828719627,
+      "period": 4,
+      "gameTime": 6279,
+      "type": "foul",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828738027,
+      "period": 4,
+      "gameTime": 6297,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828746994,
+      "period": 4,
+      "gameTime": 6306,
+      "type": "score",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828772895,
+      "period": 4,
+      "gameTime": 6332,
+      "type": "score",
+      "team": "红队",
+      "player": "楚放",
+      "number": "3",
+      "value": 2
+    },
+    {
+      "timestamp": 1768828788662,
+      "period": 4,
+      "gameTime": 6348,
+      "type": "foul",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828820712,
+      "period": 4,
+      "gameTime": 6380,
+      "type": "score",
+      "team": "黑队",
+      "player": "爱文",
+      "number": "5",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828844945,
+      "period": 4,
+      "gameTime": 6404,
+      "type": "foul",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828870846,
+      "period": 4,
+      "gameTime": 6430,
+      "type": "score",
+      "team": "黑队",
+      "player": "晓涛",
+      "number": "00",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828894035,
+      "period": 4,
+      "gameTime": 6453,
+      "type": "foul",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828911262,
+      "period": 4,
+      "gameTime": 6470,
+      "type": "score",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828923112,
+      "period": 4,
+      "gameTime": 6482,
+      "type": "score",
+      "team": "红队",
+      "player": "廖程",
+      "number": "23",
+      "value": 1
+    },
+    {
+      "timestamp": 1768828935630,
+      "period": 4,
+      "gameTime": 6495,
+      "type": "score",
+      "team": "黑队",
+      "player": "🐶哥",
+      "number": "96",
+      "value": 2
+    },
+    {
+      "timestamp": 1768829012097,
+      "period": 4,
+      "gameTime": 6571,
+      "type": "sub-out",
+      "team": "红队",
+      "player": "屹剑",
+      "number": "33",
+      "value": null
+    },
+    {
+      "timestamp": 1768829013848,
+      "period": 4,
+      "gameTime": 6573,
+      "type": "sub-in",
+      "team": "红队",
+      "player": "锐斌",
+      "number": "20",
+      "value": null
+    },
+    {
+      "timestamp": 1768829032397,
+      "period": 4,
+      "gameTime": 6591,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 2
+    },
+    {
+      "timestamp": 1768829036697,
+      "period": 4,
+      "gameTime": 6596,
+      "type": "foul",
+      "team": "黑队",
+      "player": "庆敏",
+      "number": "8",
+      "value": 1
+    },
+    {
+      "timestamp": 1768829117798,
+      "period": 4,
+      "gameTime": 6677,
+      "type": "score",
+      "team": "红队",
+      "player": "伟国",
+      "number": "15",
+      "value": 2
+    },
+    {
+      "timestamp": 1768829119314,
+      "period": 4,
+      "gameTime": 0,
+      "type": "game-pause",
+      "team": "",
+      "player": "比赛",
+      "number": "",
+      "value": null
+    }
+  ]
+}
