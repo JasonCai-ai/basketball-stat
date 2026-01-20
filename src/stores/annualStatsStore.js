@@ -238,7 +238,6 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         }
       });
     });
-    });
 
     return Array.from(statsMap.values()).map(stats => ({
       name: stats.name,
