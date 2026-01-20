@@ -120,7 +120,7 @@
               
               <el-table-column prop="avgPoints" label="场均得分" width="110" align="center" sortable>
                 <template #default="{ row }">
-                  <el-tag type="success">{{ row.avgPoints }}</el-tag>
+                  <el-tag type="success">{{ row.avgPoints.toFixed(1) }}</el-tag>
                 </template>
               </el-table-column>
               
@@ -146,7 +146,7 @@
               
               <el-table-column prop="avgFouls" label="场均犯规" width="110" align="center" sortable>
                 <template #default="{ row }">
-                  {{ row.avgFouls }}
+                  {{ row.avgFouls.toFixed(1) }}
                 </template>
               </el-table-column>
               
@@ -164,7 +164,7 @@
               
               <el-table-column prop="winRate" label="胜率" width="90" align="center" sortable>
                 <template #default="{ row }">
-                  <span :class="{ 'high-win-rate': parseFloat(row.winRate) >= 60 }">{{ row.winRate }}%</span>
+                  <span :class="{ 'high-win-rate': row.winRate >= 60 }">{{ row.winRate.toFixed(1) }}%</span>
                 </template>
               </el-table-column>
             </el-table>
