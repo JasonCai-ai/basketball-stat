@@ -236,8 +236,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
             stats.losses += 1;
           }
         }
-        }
       });
+    });
     });
 
     return Array.from(statsMap.values()).map(stats => ({
