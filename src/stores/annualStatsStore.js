@@ -199,12 +199,13 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       const winningTeam = redScore > blackScore ? '红队' : (blackScore > redScore ? '黑队' : null);
 
       players.forEach(player => {
-        const key = `${player.name}_${player.number}`;
+        // 使用姓名作为唯一标识，合并不同号码
+        const key = player.name;
         
         if (!statsMap.has(key)) {
           statsMap.set(key, {
             name: player.name,
-            number: player.number,
+            numbers: new Set([player.number]), // 收集所有使用过的号码
             gamesPlayed: 0,
             totalPoints: 0,
             totalPlusMinus: 0,
@@ -216,6 +217,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         }
 
         const stats = statsMap.get(key);
+        stats.numbers.add(player.number); // 添加号码
         stats.gamesPlayed += 1;
         stats.totalPoints += player.score || 0;
         stats.totalPlusMinus += player.plusMinus || 0;
@@ -232,7 +234,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
 
     return Array.from(statsMap.values()).map(stats => ({
       name: stats.name,
-      number: stats.number,
+      number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '), // 显示所有号码
       gamesPlayed: stats.gamesPlayed,
       totalPoints: stats.totalPoints,
       avgPoints: (stats.totalPoints / stats.gamesPlayed).toFixed(1),

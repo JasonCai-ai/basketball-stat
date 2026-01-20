@@ -333,64 +333,6 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  // 从历史数据加载（直接接收 JSON 对象）
-  async function loadHistoryData(data) {
-    try {
-      const hasScoreRecords = data.details?.some(d => d.type === 'score');
-      const hasPlusMinusData = data.game?.[0]?.players?.some(p => p.plusMinus !== undefined && p.plusMinus !== 0);
-
-      // 清空现有数据
-      await clearData();
-
-      // 保存原始数据
-      const transaction = db.value.transaction([STORE_NAME, DETAIL_STORE_NAME], 'readwrite');
-      const gameStore = transaction.objectStore(STORE_NAME);
-      const detailStore = transaction.objectStore(DETAIL_STORE_NAME);
-
-      // 处理球员数据兼容性
-      const importedPlayers = (data.game?.[0]?.players || []).map(p => ({
-        ...p,
-        plusMinus: typeof p.plusMinus === 'number' ? p.plusMinus : 0
-      }));
-
-      // 保存基础数据
-      const gameData = {
-        id: 'currentGame',
-        ...data.game?.[0],
-        players: JSON.parse(JSON.stringify(importedPlayers))
-      };
-      gameStore.put(gameData);
-
-      // 保存明细数据
-      data.details?.forEach(d => {
-        const detailData = JSON.parse(JSON.stringify(d));
-        detailStore.put(detailData);
-      });
-
-      return new Promise((resolve, reject) => {
-        transaction.oncomplete = async () => {
-          await loadData();
-          
-          // 重新计算正负值
-          if (hasScoreRecords && !hasPlusMinusData) {
-            recalculatePlusMinus();
-          }
-          
-          await saveData();
-          resolve('历史比赛加载成功');
-        };
-        
-        transaction.onerror = (event) => {
-          console.error('Transaction error:', event);
-          reject(new Error('加载历史数据事务错误'));
-        };
-      });
-    } catch (error) {
-      console.error('Load history data error:', error);
-      throw new Error('加载历史数据失败: ' + error.message);
-    }
-  }
-
   // 开始比赛
   async function startGame() {
     if (isGameRunning.value) return;
@@ -847,7 +789,6 @@ export const useGameStore = defineStore('game', () => {
     loadData,
     clearData,
     importDB,
-    loadHistoryData,
     
     // 游戏控制
     startGame,
