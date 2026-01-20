@@ -244,14 +244,14 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '), // 显示所有号码
       gamesPlayed: stats.gamesPlayed,
       totalPoints: stats.totalPoints,
-      avgPoints: (stats.totalPoints / stats.gamesPlayed).toFixed(1),
-      avgPlusMinus: (stats.totalPlusMinus / stats.gamesPlayed).toFixed(1),
-      avgPlayTime: Math.round(stats.totalPlayTime / stats.gamesPlayed),
+      avgPoints: parseFloat((stats.totalPoints / stats.gamesPlayed).toFixed(1)),
+      avgPlusMinus: parseFloat((stats.totalPlusMinus / stats.gamesPlayed).toFixed(1)),
+      avgPlayTime: Math.round(stats.totalPlayTime / stats.gamesPlayed / 60), // 直接转换为分钟
       totalFouls: stats.totalFouls,
-      avgFouls: (stats.totalFouls / stats.gamesPlayed).toFixed(1),
+      avgFouls: parseFloat((stats.totalFouls / stats.gamesPlayed).toFixed(1)),
       wins: stats.wins,
       losses: stats.losses,
-      winRate: stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0'
+      winRate: parseFloat(stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0')
     })).sort((a, b) => b.totalPoints - a.totalPoints);
   });
 

@@ -134,7 +134,7 @@
               
               <el-table-column prop="avgPlayTime" label="场均时长(分)" width="130" align="center" sortable>
                 <template #default="{ row }">
-                  {{ (row.avgPlayTime / 60).toFixed(1) }}
+                  {{ row.avgPlayTime.toFixed(1) }}
                 </template>
               </el-table-column>
               
