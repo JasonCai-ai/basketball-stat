@@ -202,6 +202,10 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         // 使用姓名作为唯一标识，合并不同号码
         const key = player.name;
         
+        // 计算上场时间判断是否 DNP
+        const playTime = (player.totalTime || 0) + (player.currentTime || 0);
+        const isDNP = playTime === 0;
+        
         if (!statsMap.has(key)) {
           statsMap.set(key, {
             name: player.name,
@@ -221,13 +225,17 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         stats.gamesPlayed += 1;
         stats.totalPoints += player.score || 0;
         stats.totalPlusMinus += player.plusMinus || 0;
-        stats.totalPlayTime += ((player.totalTime || 0) + (player.currentTime || 0));
+        stats.totalPlayTime += playTime;
         stats.totalFouls += player.fouls || 0;
         
-        if (winningTeam && player.team === winningTeam) {
-          stats.wins += 1;
-        } else if (winningTeam && player.team !== winningTeam) {
-          stats.losses += 1;
+        // 只有实际上场的球员才计算胜负场
+        if (!isDNP && winningTeam) {
+          if (player.team === winningTeam) {
+            stats.wins += 1;
+          } else {
+            stats.losses += 1;
+          }
+        }
         }
       });
     });
