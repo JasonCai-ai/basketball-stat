@@ -109,8 +109,13 @@ const loadHistoryGame = async () => {
     
     const data = await response.json();
     
+    // 创建一个虚拟的 File 对象来使用 importDB 方法
+    const jsonString = JSON.stringify(data);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const file = new File([blob], `${game.filename}`, { type: 'application/json' });
+    
     // 调用 gameStore 的导入方法
-    await gameStore.loadHistoryData(data);
+    await gameStore.importDB(file);
     
     toastStore.success(`已加载 ${selectedYear.value}-${selectedGame.value} 的比赛数据`);
     dialogVisible.value = false;
