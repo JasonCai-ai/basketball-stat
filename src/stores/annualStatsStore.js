@@ -9,11 +9,12 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   
   // 获取文件配置（每次都从CDN拉取最新数据）
   async function fetchFilesConfig(year) {
-    const configUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/basketball_files_config.json`;
+    const timestamp = Date.now();
+    const configUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/basketball_files_config.json?t=${timestamp}`;
     
     try {
       console.log('从网络获取配置:', configUrl);
-      const response = await fetch(configUrl);
+      const response = await fetch(configUrl, { cache: 'no-cache' });
       if (!response.ok) {
         throw new Error(`获取配置失败: ${response.status}`);
       }
@@ -30,11 +31,12 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
 
   // 获取单个比赛数据（每次都从CDN拉取最新数据）
   async function fetchGameData(year, date, filename) {
-    const dataUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/${filename}`;
+    const timestamp = Date.now();
+    const dataUrl = `https://jasoncai-ai.github.io/basketball-stat/data/${year}/${filename}?t=${timestamp}`;
     
     try {
       console.log('从网络获取比赛数据:', dataUrl);
-      const response = await fetch(dataUrl);
+      const response = await fetch(dataUrl, { cache: 'no-cache' });
       if (!response.ok) {
         throw new Error(`获取比赛数据失败: ${response.status}`);
       }
