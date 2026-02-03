@@ -100,7 +100,13 @@
             >
               <el-table-column prop="name" label="姓名" width="100" align="center" fixed>
                 <template #default="{ row }">
-                  <el-tag>{{ row.name }}</el-tag>
+                  <el-button 
+                    type="primary" 
+                    link 
+                    @click="showPlayerHistory(row.name)"
+                  >
+                    {{ row.name }}
+                  </el-button>
                 </template>
               </el-table-column>
               
@@ -181,6 +187,52 @@
         </el-empty>
       </el-main>
     </el-container>
+
+    <!-- 球员历史数据对话框 -->
+    <el-dialog
+      v-model="showHistoryDialog"
+      :title="`${selectedPlayerName} - ${selectedYear}年度比赛记录`"
+      width="90%"
+      :close-on-click-modal="false"
+    >
+      <el-table
+        :data="playerHistoryData"
+        stripe
+        border
+        style="width: 100%"
+      >
+        <el-table-column prop="date" label="日期" width="120" align="center" />
+        <el-table-column prop="number" label="号码" width="80" align="center" />
+        <el-table-column prop="team" label="队伍" width="80" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.team === '红队' ? 'danger' : 'info'">
+              {{ row.team }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="points" label="得分" width="80" align="center" sortable />
+        <el-table-column prop="plusMinus" label="正负值" width="100" align="center" sortable>
+          <template #default="{ row }">
+            <el-tag :type="getPlusMinusType(row.plusMinus)">
+              {{ row.plusMinus > 0 ? '+' : '' }}{{ row.plusMinus }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="playTime" label="时长(分)" width="100" align="center" sortable />
+        <el-table-column prop="fouls" label="犯规" width="80" align="center" sortable />
+        <el-table-column prop="result" label="结果" width="80" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.result === '胜'" type="success">胜</el-tag>
+            <el-tag v-else-if="row.result === '负'" type="danger">负</el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <template #footer>
+        <el-button @click="showHistoryDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -199,6 +251,9 @@ const SearchIcon = Search;
 const store = useAnnualStatsStore();
 const selectedYear = ref(new Date().getFullYear());
 const searchText = ref('');
+const showHistoryDialog = ref(false);
+const selectedPlayerName = ref('');
+const playerHistoryData = ref([]);
 
 // 可选年份（从2024到当前年份）
 const availableYears = computed(() => {
@@ -239,25 +294,24 @@ const refreshData = async () => {
 const clearCache = async () => {
   try {
     await ElMessageBox.confirm(
-      `确定要清除 ${selectedYear.value} 年的缓存数据吗？清除后将重新从网络加载。`,
-      '清除缓存',
+      '年度统计数据每次都会从网络实时加载最新数据，无需清除缓存。',
+      '提示',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
+        confirmButtonText: '知道了',
+        showCancelButton: false,
+        type: 'info',
       }
     );
-    
-    await store.clearYearCache(selectedYear.value);
-    ElMessage.success('缓存已清除');
-    
-    // 重新加载数据
-    await refreshData();
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('清除缓存失败');
-    }
+    // 用户关闭对话框
   }
+};
+
+// 显示球员历史数据
+const showPlayerHistory = (playerName) => {
+  selectedPlayerName.value = playerName;
+  playerHistoryData.value = store.getPlayerHistory(playerName);
+  showHistoryDialog.value = true;
 };
 
 // 过滤后的统计数据
@@ -300,7 +354,6 @@ const formatSeconds = (seconds) => {
 
 // 初始化
 onMounted(async () => {
-  await store.initDB();
   await handleYearChange(selectedYear.value);
 });
 </script>
