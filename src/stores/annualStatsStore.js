@@ -100,12 +100,17 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       const winningTeam = redScore > blackScore ? '红队' : (blackScore > redScore ? '黑队' : null);
 
       players.forEach(player => {
-        // 使用姓名作为唯一标识，合并不同号码
-        const key = player.name;
-        
         // 计算上场时间判断是否 DNP
         const playTime = (player.totalTime || 0) + (player.currentTime || 0);
         const isDNP = playTime === 0;
+        
+        // DNP球员不纳入年度统计
+        if (isDNP) {
+          return;
+        }
+        
+        // 使用姓名作为唯一标识，合并不同号码
+        const key = player.name;
         
         if (!statsMap.has(key)) {
           statsMap.set(key, {
@@ -129,8 +134,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         stats.totalPlayTime += playTime;
         stats.totalFouls += player.fouls || 0;
         
-        // 只有实际上场的球员才计算胜负场
-        if (!isDNP && winningTeam) {
+        // 计算胜负场
+        if (winningTeam) {
           if (player.team === winningTeam) {
             stats.wins += 1;
           } else {
