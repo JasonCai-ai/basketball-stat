@@ -36,7 +36,6 @@ export const useGameStore = defineStore('game', () => {
   const presetPlayers = ref([
     { id: 1, name: '郑方庆', number: '0' },
     { id: 2, name: '晓涛', number: '00' },
-    { id: 3, name: '佳鑫', number: '17' },
     { id: 4, name: '文灏', number: '2' },
     { id: 5, name: '楚放', number: '3' },
     { id: 6, name: '爱文', number: '5' },
@@ -61,6 +60,7 @@ export const useGameStore = defineStore('game', () => {
     { id: 25, name: '廖程', number: '23' },
     { id: 26, name: '🐶哥', number: '96' },
     { id: 27, name: '烟佬', number: '04' },
+    { id: 28, name: '老板', number: '42' },
   ]);
 
   // 初始化数据库
