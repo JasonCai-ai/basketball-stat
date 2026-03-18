@@ -75,6 +75,8 @@
               </el-col>
             </el-row>
           </el-card>
+            <!-- 比赛胜负预测模块 -->
+            <WinPredictionPanel />
 
           <!-- 球员统计表格 -->
           <el-card class="table-card" shadow="hover">
@@ -238,6 +240,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import WinPredictionPanel from '../components/WinPredictionPanel.vue';
 import { useRouter } from 'vue-router';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
