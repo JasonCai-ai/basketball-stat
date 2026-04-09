@@ -61,6 +61,7 @@ export const useGameStore = defineStore('game', () => {
     { id: 26, name: '🐶哥', number: '96' },
     { id: 27, name: '烟佬', number: '04' },
     { id: 28, name: '老板', number: '42' },
+    { id: 29, name: '潘玮柏', number: '45' },
   ]);
 
   // 初始化数据库

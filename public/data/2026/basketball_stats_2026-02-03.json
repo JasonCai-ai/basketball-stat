@@ -398,7 +398,7 @@
       "type": "player-add",
       "team": "红队",
       "player": "教练",
-      "number": "99",
+      "number": " 45",
       "value": null
     },
     {
@@ -3128,7 +3128,7 @@
       "type": "player-remove",
       "team": "红队",
       "player": "教练",
-      "number": "99",
+      "number": " 45",
       "value": null
     },
     {
