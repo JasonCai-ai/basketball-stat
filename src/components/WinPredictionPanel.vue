@@ -20,8 +20,6 @@
           <el-select
             v-model="redTeam"
             multiple
-            collapse-tags
-            collapse-tags-tooltip
             placeholder="选择球员"
             style="width: 100%"
           >
@@ -41,8 +39,6 @@
           <el-select
             v-model="blackTeam"
             multiple
-            collapse-tags
-            collapse-tags-tooltip
             placeholder="选择球员"
             style="width: 100%"
           >
