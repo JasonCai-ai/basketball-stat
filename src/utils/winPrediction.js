@@ -8,10 +8,10 @@
 // 6. 最终胜率 = α × 技术统计模型 + (1-α) × Elo 模型
 
 export const DEFAULT_WEIGHTS = {
-  pointsPerMin: 0.47,   // 0.36 × 1.30
-  plusMinusPerMin: 0.36,
-  foulsPerMin: 0.18,
-  avgPlayTime: 0.23,    // 0.15 × 1.50；体现体力 + 队长用脚投票的能力评估
+  avgPoints: 0.47,      // 场均得分（不除时长，避免低出场球员被噪声抬高）
+  avgPlusMinus: 0.36,   // 场均正负值
+  foulsPerMin: 0.18,    // 犯规仍按每分钟（反映"鲁莽程度"与上场时长无关）
+  avgPlayTime: 0.23,    // 场均分钟：体现体力 + 队长用脚投票的能力评估
 };
 
 export const DEFAULT_OPTS = {
@@ -89,7 +89,7 @@ export function computeLeagueStats(players, minGames = 3) {
   const eligible = players.filter(p => p.gamesPlayed >= minGames);
   const sample = eligible.length >= 3 ? eligible : players;
 
-  const fields = ['pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate', 'avgPlayTime'];
+  const fields = ['avgPoints', 'avgPlusMinus', 'pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate', 'avgPlayTime'];
   const stats = {};
   for (const f of fields) {
     const values = sample.map(p => p[f] ?? 0);
@@ -142,15 +142,26 @@ export function computeEloRatings(gamesData, opts = {}) {
 }
 
 // 单球员技术统计能力评分（已 z-score 化的加权和）
+// 得分和正负值用场均（avgPoints / avgPlusMinus）—— 反映"这场打成什么样"，不被低出场噪声放大
+// 犯规仍用每分钟 —— "鲁莽程度"与上场时长无关，按率比较公平
 export function playerBoxRating(player, leagueStats, weights = DEFAULT_WEIGHTS) {
-  const zP  = zScore(player.pointsPerMin,     leagueStats.pointsPerMin.mean,     leagueStats.pointsPerMin.std);
-  const zPM = zScore(player.plusMinusPerMin,  leagueStats.plusMinusPerMin.mean,  leagueStats.plusMinusPerMin.std);
-  const zF  = zScore(player.foulsPerMin,      leagueStats.foulsPerMin.mean,      leagueStats.foulsPerMin.std);
+  const wP  = weights.avgPoints    ?? 0;
+  const wPM = weights.avgPlusMinus ?? 0;
+  const wF  = weights.foulsPerMin  ?? 0;
+  const wM  = weights.avgPlayTime  ?? 0;
+
+  const zP  = leagueStats.avgPoints
+    ? zScore(player.avgPoints ?? 0, leagueStats.avgPoints.mean, leagueStats.avgPoints.std)
+    : 0;
+  const zPM = leagueStats.avgPlusMinus
+    ? zScore(player.avgPlusMinus ?? 0, leagueStats.avgPlusMinus.mean, leagueStats.avgPlusMinus.std)
+    : 0;
+  const zF  = zScore(player.foulsPerMin, leagueStats.foulsPerMin.mean, leagueStats.foulsPerMin.std);
   const zM  = leagueStats.avgPlayTime
     ? zScore(player.avgPlayTime ?? 0, leagueStats.avgPlayTime.mean, leagueStats.avgPlayTime.std)
     : 0;
-  const wM  = weights.avgPlayTime ?? 0;
-  return weights.pointsPerMin * zP + weights.plusMinusPerMin * zPM - weights.foulsPerMin * zF + wM * zM;
+
+  return wP * zP + wPM * zPM - wF * zF + wM * zM;
 }
 
 // 团队评分：按 MPG 加权平均，让常打的人权重更高（兼顾样本可信度与"上场预期"）
