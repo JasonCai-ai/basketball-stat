@@ -1,5 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import {
+  computeLeagueStats,
+  computeEloRatings,
+  shrinkWinRate,
+} from '../utils/winPrediction';
 
 export const useAnnualStatsStore = defineStore('annualStats', () => {
   const loading = ref(false);
@@ -145,23 +150,40 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       });
     });
 
-    return Array.from(statsMap.values()).map(stats => ({
-      name: stats.name,
-      number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '), // 显示所有号码
-      gamesPlayed: stats.gamesPlayed,
-      totalPoints: stats.totalPoints,
-      avgPoints: parseFloat((stats.totalPoints / stats.gamesPlayed).toFixed(1)),
-      avgPlusMinus: parseFloat((stats.totalPlusMinus / stats.gamesPlayed).toFixed(1)),
-      avgPlayTime: Math.round(stats.totalPlayTime / stats.gamesPlayed / 60), // 直接转换为分钟
-      totalFouls: stats.totalFouls,
-      avgFouls: parseFloat((stats.totalFouls / stats.gamesPlayed).toFixed(1)),
-      wins: stats.wins,
-      losses: stats.losses,
-      winRate: parseFloat(stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0')
-    })).sort((a, b) => b.totalPoints - a.totalPoints);
+    return Array.from(statsMap.values()).map(stats => {
+      const totalMinutes = stats.totalPlayTime / 60;
+      const safeMin = totalMinutes > 0 ? totalMinutes : 0;
+      const decided = stats.wins + stats.losses; // 排除平局
+      return {
+        name: stats.name,
+        number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '),
+        gamesPlayed: stats.gamesPlayed,
+        totalPoints: stats.totalPoints,
+        avgPoints: parseFloat((stats.totalPoints / stats.gamesPlayed).toFixed(1)),
+        avgPlusMinus: parseFloat((stats.totalPlusMinus / stats.gamesPlayed).toFixed(1)),
+        avgPlayTime: Math.round(stats.totalPlayTime / stats.gamesPlayed / 60),
+        totalFouls: stats.totalFouls,
+        avgFouls: parseFloat((stats.totalFouls / stats.gamesPlayed).toFixed(1)),
+        wins: stats.wins,
+        losses: stats.losses,
+        winRate: parseFloat(stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0'),
+        // 预测专用字段：精确分钟、人均效率、贝叶斯调整胜率
+        totalMinutes,
+        pointsPerMin:     safeMin > 0 ? stats.totalPoints     / safeMin : 0,
+        plusMinusPerMin:  safeMin > 0 ? stats.totalPlusMinus  / safeMin : 0,
+        foulsPerMin:      safeMin > 0 ? stats.totalFouls      / safeMin : 0,
+        adjustedWinRate:  shrinkWinRate(stats.wins, decided),
+      };
+    }).sort((a, b) => b.totalPoints - a.totalPoints);
   });
 
   const totalGames = computed(() => gamesData.value.length);
+
+  // 预测模型用：联盟级 mean/std，用于 z-score 标准化
+  const leagueStats = computed(() => computeLeagueStats(playerAnnualStats.value));
+
+  // 预测模型用：球员 Elo（按时间顺序遍历历史比赛得出）
+  const playerEloRatings = computed(() => computeEloRatings(gamesData.value));
 
   // 获取单个球员的年度历史数据（按日期排列）
   const getPlayerHistory = computed(() => {
@@ -215,6 +237,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     playerAnnualStats,
     totalGames,
     getPlayerHistory,
-    loadYearData
+    loadYearData,
+    leagueStats,
+    playerEloRatings,
   };
 });
