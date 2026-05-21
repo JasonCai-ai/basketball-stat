@@ -127,6 +127,103 @@ export function teamEloRating(players, eloRatings, initial = DEFAULT_OPTS.eloIni
   return mean(players.map(p => eloRatings.get(p.name) ?? initial));
 }
 
+// 球队进攻 / 被进攻效率（每分钟）
+// 假设场上 onCourt 人。avg(pointsPerMin)×N = 球队每分钟得分；
+// plusMinusPerMin 本身就是"球员在场时球队净胜分/分钟"，平均后即球队每分钟净胜分。
+export function teamRates(players, onCourt = 5) {
+  if (players.length === 0) return { offense: 0, defenseAllowed: 0 };
+  const avgPts = mean(players.map(p => p.pointsPerMin));
+  const avgPM  = mean(players.map(p => p.plusMinusPerMin));
+  const offense = onCourt * avgPts;
+  const defenseAllowed = Math.max(0.1, offense - avgPM);
+  return { offense: Math.max(0.1, offense), defenseAllowed };
+}
+
+function normalSample() {
+  const u1 = Math.random() || 1e-10;
+  const u2 = Math.random();
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+// Poisson 采样（Knuth 算法 + 正态近似回退）
+function poissonSample(lambda) {
+  if (lambda <= 0) return 0;
+  if (lambda < 30) {
+    const L = Math.exp(-lambda);
+    let k = 0, p = 1;
+    do { k++; p *= Math.random(); } while (p > L);
+    return k - 1;
+  }
+  return Math.max(0, Math.round(lambda + Math.sqrt(lambda) * normalSample()));
+}
+
+// Monte Carlo 得分模拟
+// 规则：先到 target 分（默认 140 = 4 节 × 35）胜出；若 maxMinutes 内都未到，按当前比分判胜
+export function simulateMatchup(red, black, opts = {}) {
+  const target     = opts.target     ?? 140;
+  const maxMinutes = opts.maxMinutes ?? 100;
+  const trials     = opts.trials     ?? 2000;
+  const onCourt    = opts.onCourt    ?? 5;
+
+  const r = teamRates(red, onCourt);
+  const b = teamRates(black, onCourt);
+  // 红队每分钟期望得分 = 红队进攻 与 黑队被进攻 的均值（标准 pace-and-efficiency）
+  const redRate   = (r.offense + b.defenseAllowed) / 2;
+  const blackRate = (b.offense + r.defenseAllowed) / 2;
+
+  let redWins = 0, blackWins = 0, ties = 0;
+  let redReached = 0, blackReached = 0, timeUp = 0;
+  let sumRed = 0, sumBlack = 0, sumMin = 0;
+  let sample = null;
+
+  for (let t = 0; t < trials; t++) {
+    let redScore = 0, blackScore = 0, minute = 0;
+    const traj = [{ minute: 0, red: 0, black: 0 }];
+    let endedBy = 'time';
+    while (minute < maxMinutes) {
+      minute++;
+      redScore   += poissonSample(redRate);
+      blackScore += poissonSample(blackRate);
+      traj.push({ minute, red: redScore, black: blackScore });
+      if (redScore >= target || blackScore >= target) {
+        endedBy = redScore >= target && blackScore >= target
+          ? (redScore > blackScore ? 'red' : (blackScore > redScore ? 'black' : 'time'))
+          : (redScore >= target ? 'red' : 'black');
+        break;
+      }
+    }
+    if (endedBy === 'red') redReached++;
+    else if (endedBy === 'black') blackReached++;
+    else timeUp++;
+
+    if (redScore > blackScore) redWins++;
+    else if (blackScore > redScore) blackWins++;
+    else ties++;
+
+    sumRed += redScore; sumBlack += blackScore; sumMin += minute;
+    if (t === 0) sample = traj;
+  }
+
+  return {
+    redWinPct:    redWins / trials,
+    blackWinPct:  blackWins / trials,
+    tiePct:       ties / trials,
+    redReachedPct:   redReached / trials,
+    blackReachedPct: blackReached / trials,
+    timeUpPct:       timeUp / trials,
+    expectedRedScore:   sumRed / trials,
+    expectedBlackScore: sumBlack / trials,
+    expectedMinutes:    sumMin / trials,
+    rates: {
+      red: redRate, black: blackRate,
+      redOff: r.offense, redDef: r.defenseAllowed,
+      blackOff: b.offense, blackDef: b.defenseAllowed,
+    },
+    sampleTrajectory: sample,
+    config: { target, maxMinutes, trials },
+  };
+}
+
 // 综合胜率：技术统计 sigmoid + Elo 期望胜率，按 α 加权
 export function combinedWinProbability(red, black, leagueStats, eloRatings, opts = {}) {
   const alpha   = opts.alpha   ?? DEFAULT_OPTS.alpha;
