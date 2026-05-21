@@ -8,10 +8,10 @@
 // 6. 最终胜率 = α × 技术统计模型 + (1-α) × Elo 模型
 
 export const DEFAULT_WEIGHTS = {
-  pointsPerMin: 0.36,
+  pointsPerMin: 0.47,   // 0.36 × 1.30
   plusMinusPerMin: 0.36,
   foulsPerMin: 0.18,
-  avgPlayTime: 0.15,    // 场均分钟：体现体力 + 队长用脚投票的能力评估
+  avgPlayTime: 0.23,    // 0.15 × 1.50；体现体力 + 队长用脚投票的能力评估
 };
 
 export const DEFAULT_OPTS = {
@@ -27,11 +27,11 @@ export const DEFAULT_OPTS = {
   powerScale: 1.1,   // 战力值 sigmoid 温度
 };
 
-// 战力值三层权重：技术统计 / Elo / 胜率（求和 = 1）
+// 战力值三层权重：技术统计 / Elo / 胜率
 export const POWER_WEIGHTS = {
   box: 0.40,
   elo: 0.40,
-  winRate: 0.20,
+  winRate: 0.14,    // 0.20 × 0.70
 };
 
 export function mean(values) {
