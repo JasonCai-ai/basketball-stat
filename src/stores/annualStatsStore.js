@@ -4,6 +4,7 @@ import {
   computeLeagueStats,
   computeEloRatings,
   shrinkWinRate,
+  playerPowerRating,
 } from '../utils/winPrediction';
 
 export const useAnnualStatsStore = defineStore('annualStats', () => {
@@ -86,8 +87,9 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     }
   }
 
-  // 计算球员年度统计
-  const playerAnnualStats = computed(() => {
+  // 球员年度基础统计（不含战力值，作为内部计算源）
+  // 单独抽出来：leagueStats 需要它，而带战力值的版本又需要 leagueStats，避免循环依赖
+  const basePlayerAnnualStats = computed(() => {
     const statsMap = new Map();
 
     gamesData.value.forEach((game, index) => {
@@ -180,10 +182,20 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   const totalGames = computed(() => gamesData.value.length);
 
   // 预测模型用：联盟级 mean/std，用于 z-score 标准化
-  const leagueStats = computed(() => computeLeagueStats(playerAnnualStats.value));
+  const leagueStats = computed(() => computeLeagueStats(basePlayerAnnualStats.value));
 
   // 预测模型用：球员 Elo（按时间顺序遍历历史比赛得出）
   const playerEloRatings = computed(() => computeEloRatings(gamesData.value));
+
+  // 对外暴露的球员年度统计：在基础统计上叠加战力值 (0-100)
+  const playerAnnualStats = computed(() => {
+    const ls = leagueStats.value;
+    const elo = playerEloRatings.value;
+    return basePlayerAnnualStats.value.map(p => ({
+      ...p,
+      powerRating: playerPowerRating(p, ls, elo),
+    }));
+  });
 
   // 获取单个球员的年度历史数据（按日期排列）
   const getPlayerHistory = computed(() => {

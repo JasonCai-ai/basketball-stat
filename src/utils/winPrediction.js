@@ -8,9 +8,10 @@
 // 6. 最终胜率 = α × 技术统计模型 + (1-α) × Elo 模型
 
 export const DEFAULT_WEIGHTS = {
-  pointsPerMin: 0.4,
-  plusMinusPerMin: 0.4,
-  foulsPerMin: 0.2,
+  pointsPerMin: 0.36,
+  plusMinusPerMin: 0.36,
+  foulsPerMin: 0.18,
+  avgPlayTime: 0.15,    // 场均分钟：体现体力 + 队长用脚投票的能力评估
 };
 
 export const DEFAULT_OPTS = {
@@ -20,11 +21,43 @@ export const DEFAULT_OPTS = {
   eloK: 24,
   bayesPrior: 0.5,   // 胜率先验：均值 50%
   bayesStrength: 5,  // 先验等效场次
+  mpgFloor: 5,       // MPG 权重下限（避免 0 分钟球员被完全忽略）
+  mpgCap: 30,        // MPG 权重上限（避免主力独大）
+  powerConfFullMin: 100, // 战力值置信度满分线（总分钟数）
+  powerScale: 1.1,   // 战力值 sigmoid 温度
+};
+
+// 战力值三层权重：技术统计 / Elo / 胜率（求和 = 1）
+export const POWER_WEIGHTS = {
+  box: 0.40,
+  elo: 0.40,
+  winRate: 0.20,
 };
 
 export function mean(values) {
   if (values.length === 0) return 0;
   return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+// 加权平均：weights 与 values 等长；权重全 0 时退化为算术均值
+export function weightedMean(values, weights) {
+  if (values.length === 0) return 0;
+  let sumW = 0, sumWV = 0;
+  for (let i = 0; i < values.length; i++) {
+    const w = weights[i] ?? 1;
+    sumW += w;
+    sumWV += w * values[i];
+  }
+  if (sumW === 0) return mean(values);
+  return sumWV / sumW;
+}
+
+// 球员 MPG 权重：[floor, cap] 截断后作为团队加权平均权重
+export function mpgWeight(player, opts = {}) {
+  const floor = opts.floor ?? DEFAULT_OPTS.mpgFloor;
+  const cap   = opts.cap   ?? DEFAULT_OPTS.mpgCap;
+  const mpg = player.avgPlayTime ?? 0;
+  return Math.max(floor, Math.min(mpg, cap));
 }
 
 export function std(values, m) {
@@ -56,7 +89,7 @@ export function computeLeagueStats(players, minGames = 3) {
   const eligible = players.filter(p => p.gamesPlayed >= minGames);
   const sample = eligible.length >= 3 ? eligible : players;
 
-  const fields = ['pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate'];
+  const fields = ['pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate', 'avgPlayTime'];
   const stats = {};
   for (const f of fields) {
     const values = sample.map(p => p[f] ?? 0);
@@ -113,30 +146,66 @@ export function playerBoxRating(player, leagueStats, weights = DEFAULT_WEIGHTS) 
   const zP  = zScore(player.pointsPerMin,     leagueStats.pointsPerMin.mean,     leagueStats.pointsPerMin.std);
   const zPM = zScore(player.plusMinusPerMin,  leagueStats.plusMinusPerMin.mean,  leagueStats.plusMinusPerMin.std);
   const zF  = zScore(player.foulsPerMin,      leagueStats.foulsPerMin.mean,      leagueStats.foulsPerMin.std);
-  return weights.pointsPerMin * zP + weights.plusMinusPerMin * zPM - weights.foulsPerMin * zF;
+  const zM  = leagueStats.avgPlayTime
+    ? zScore(player.avgPlayTime ?? 0, leagueStats.avgPlayTime.mean, leagueStats.avgPlayTime.std)
+    : 0;
+  const wM  = weights.avgPlayTime ?? 0;
+  return weights.pointsPerMin * zP + weights.plusMinusPerMin * zPM - weights.foulsPerMin * zF + wM * zM;
 }
 
-// 团队评分：取人均，消除阵容人数偏差
+// 团队评分：按 MPG 加权平均，让常打的人权重更高（兼顾样本可信度与"上场预期"）
 export function teamBoxRating(players, leagueStats, weights = DEFAULT_WEIGHTS) {
   if (players.length === 0) return 0;
-  return mean(players.map(p => playerBoxRating(p, leagueStats, weights)));
+  const ratings = players.map(p => playerBoxRating(p, leagueStats, weights));
+  const w = players.map(p => mpgWeight(p));
+  return weightedMean(ratings, w);
 }
 
 export function teamEloRating(players, eloRatings, initial = DEFAULT_OPTS.eloInitial) {
   if (players.length === 0) return initial;
-  return mean(players.map(p => eloRatings.get(p.name) ?? initial));
+  const elos = players.map(p => eloRatings.get(p.name) ?? initial);
+  const w = players.map(p => mpgWeight(p));
+  return weightedMean(elos, w);
 }
 
 // 球队进攻 / 被进攻效率（每分钟）
 // 假设场上 onCourt 人。avg(pointsPerMin)×N = 球队每分钟得分；
 // plusMinusPerMin 本身就是"球员在场时球队净胜分/分钟"，平均后即球队每分钟净胜分。
+// 采用 MPG 加权平均，使预测的"团队每分钟产出"与团队评分口径一致。
 export function teamRates(players, onCourt = 5) {
   if (players.length === 0) return { offense: 0, defenseAllowed: 0 };
-  const avgPts = mean(players.map(p => p.pointsPerMin));
-  const avgPM  = mean(players.map(p => p.plusMinusPerMin));
+  const w = players.map(p => mpgWeight(p));
+  const avgPts = weightedMean(players.map(p => p.pointsPerMin), w);
+  const avgPM  = weightedMean(players.map(p => p.plusMinusPerMin), w);
   const offense = onCourt * avgPts;
   const defenseAllowed = Math.max(0.1, offense - avgPM);
   return { offense: Math.max(0.1, offense), defenseAllowed };
+}
+
+// 单球员战力值 0-100
+// 公式：技术统计 + Elo 偏移 + 胜率偏移 三层加权 → 总分钟数置信度收缩 → sigmoid 映射
+// 设计：50 = 联盟平均；新人数据被收缩到 50 附近，老球员可拉开差距；与预测模型同源
+export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
+  const initial = opts.initial ?? DEFAULT_OPTS.eloInitial;
+  const scale   = opts.powerScale ?? DEFAULT_OPTS.powerScale;
+  const fullMin = opts.confFullMin ?? DEFAULT_OPTS.powerConfFullMin;
+  const weights = opts.weights ?? DEFAULT_WEIGHTS;
+  const pw      = opts.powerWeights ?? POWER_WEIGHTS;
+
+  const totalMin = player.totalMinutes ?? 0;
+  const conf = Math.min(1, totalMin / fullMin);
+
+  const boxZ = playerBoxRating(player, leagueStats, weights);
+  const elo = (eloRatings && typeof eloRatings.get === 'function')
+    ? (eloRatings.get(player.name) ?? initial)
+    : initial;
+  const eloDelta = (elo - initial) / 200; // 200 Elo ≈ 1 个"档次"
+
+  // 胜率偏移：100%→+1, 50%→0, 0%→-1（adjustedWinRate 已贝叶斯收缩，新人 ≈ 0）
+  const winRateOffset = ((player.adjustedWinRate ?? 0.5) - 0.5) * 2;
+
+  const combined = (pw.box * boxZ + pw.elo * eloDelta + pw.winRate * winRateOffset) * conf;
+  return Math.round(100 * sigmoid(scale * combined));
 }
 
 function normalSample() {

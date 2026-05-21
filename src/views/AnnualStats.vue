@@ -175,6 +175,23 @@
                   <span :class="{ 'high-win-rate': row.winRate >= 60 }">{{ row.winRate.toFixed(1) }}%</span>
                 </template>
               </el-table-column>
+
+              <el-table-column prop="powerRating" label="战力值" width="100" align="center" sortable>
+                <template #header>
+                  <el-tooltip
+                    effect="dark"
+                    placement="top"
+                    content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、出场分钟置信度。与胜负预测同源。"
+                  >
+                    <span>战力值</span>
+                  </el-tooltip>
+                </template>
+                <template #default="{ row }">
+                  <el-tag :type="getPowerType(row.powerRating)" effect="dark">
+                    {{ row.powerRating }}
+                  </el-tag>
+                </template>
+              </el-table-column>
             </el-table>
           </el-card>
         </div>
@@ -346,6 +363,15 @@ const getPlusMinusType = (value) => {
   if (num > 0) return 'success';
   if (num < 0) return 'danger';
   return 'info';
+};
+
+// 战力值颜色：70+ 强 / 55-69 偏上 / 45-54 平均 / 30-44 偏下 / <30 弱
+const getPowerType = (value) => {
+  if (value >= 70) return 'danger';   // 红：明显强
+  if (value >= 55) return 'warning';  // 黄：偏上
+  if (value >= 45) return 'success';  // 绿：平均水平
+  if (value >= 30) return 'info';     // 灰蓝：偏下
+  return '';                          // 默认灰
 };
 
 // 格式化秒数为分:秒

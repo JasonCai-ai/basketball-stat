@@ -13,6 +13,34 @@
       </div>
     </template>
 
+    <!-- 报名池：先选出今天参赛的球员，再点"随机分队"自动 55 开 -->
+    <div class="pool-section">
+      <div class="team-label pool-label">
+        报名名单
+        <span class="team-count">已选 {{ pool.length }} 人</span>
+        <span class="cfg-hint dim">先点击勾选今天报名的球员，再点"随机分队"</span>
+      </div>
+      <div class="chip-list">
+        <span
+          v-for="player in playerList"
+          :key="player.name"
+          class="chip"
+          :class="{ 'chip-pool': pool.includes(player.name) }"
+          @click="togglePool(player.name)"
+        >
+          {{ player.name }}
+          <small>战 {{ player.powerRating }}</small>
+        </span>
+      </div>
+      <div class="pool-actions">
+        <el-button size="small" @click="selectAllPool">全选</el-button>
+        <el-button size="small" @click="clearPool">清空报名</el-button>
+        <el-button size="small" type="success" :disabled="pool.length < 2" @click="randomSplit">
+          随机分队（战力 55 开）
+        </el-button>
+      </div>
+    </div>
+
     <el-row :gutter="20">
       <el-col :xs="24" :md="12">
         <div class="team-select">
@@ -192,6 +220,7 @@ import { combinedWinProbability, simulateMatchup } from '../utils/winPrediction'
 
 const store = useAnnualStatsStore();
 const playerList = computed(() => store.playerAnnualStats);
+const pool = ref([]);            // 报名池：今天参赛球员名单
 const redTeam = ref([]);
 const blackTeam = ref([]);
 const result = ref(null);
@@ -199,6 +228,7 @@ const targetScore = ref(140);
 const maxMinutes = ref(100);
 
 function resetTeams() {
+  pool.value = [];
   redTeam.value = [];
   blackTeam.value = [];
   result.value = null;
@@ -211,6 +241,63 @@ function toggle(team, name) {
   const i = self.value.indexOf(name);
   if (i >= 0) self.value.splice(i, 1);
   else self.value.push(name);
+}
+
+function togglePool(name) {
+  const i = pool.value.indexOf(name);
+  if (i >= 0) pool.value.splice(i, 1);
+  else pool.value.push(name);
+}
+
+function selectAllPool() {
+  pool.value = playerList.value.map(p => p.name);
+}
+
+function clearPool() {
+  pool.value = [];
+}
+
+// 随机分队：在报名池里找一个胜率预测接近 50:50 的分组
+// 实现：400 次随机洗牌切分，按 |pRed - 0.5| 排序，从最平衡的前 10% 里随机选一个，保留随机性
+function randomSplit() {
+  if (pool.value.length < 2) {
+    ElMessage.warning('请至少选 2 名报名球员');
+    return;
+  }
+  if (!store.leagueStats) {
+    ElMessage.error('联盟统计未就绪，请稍后再试');
+    return;
+  }
+
+  const players = playerList.value.filter(p => pool.value.includes(p.name));
+  const n = players.length;
+  const trials = 400;
+  const candidates = [];
+
+  for (let i = 0; i < trials; i++) {
+    const shuffled = [...players].sort(() => Math.random() - 0.5);
+    const baseHalf = Math.floor(n / 2);
+    // 奇数人时随机给某队多一人，避免系统性偏向
+    const redSize = n % 2 === 0 ? baseHalf : (Math.random() < 0.5 ? baseHalf : baseHalf + 1);
+    const red = shuffled.slice(0, redSize);
+    const black = shuffled.slice(redSize);
+    const { pRed } = combinedWinProbability(red, black, store.leagueStats, store.playerEloRatings);
+    candidates.push({ red, black, pRed, diff: Math.abs(pRed - 0.5) });
+  }
+
+  candidates.sort((a, b) => a.diff - b.diff);
+  const topN = Math.max(3, Math.floor(candidates.length * 0.1));
+  const chosen = candidates[Math.floor(Math.random() * topN)];
+
+  redTeam.value = chosen.red.map(p => p.name);
+  blackTeam.value = chosen.black.map(p => p.name);
+
+  ElMessage.success(
+    `已分队：红 ${chosen.red.length} 人 / 黑 ${chosen.black.length} 人，预测红队胜率 ${(chosen.pRed * 100).toFixed(1)}%`
+  );
+
+  // 自动跑一次完整预测
+  predictWinRate();
 }
 
 function predictWinRate() {
@@ -363,6 +450,26 @@ function adjPct(players) {
 }
 .red-label { color: #f56c6c; }
 .black-label { color: #303133; }
+.pool-label { color: #67c23a; flex-wrap: wrap; }
+.pool-section {
+  margin-bottom: 18px;
+  padding: 12px;
+  background: #f0f9eb;
+  border: 1px dashed #b3e19d;
+  border-radius: 8px;
+}
+.pool-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+.chip-pool {
+  background: #67c23a;
+  border-color: #67c23a;
+  color: #fff;
+}
+.chip-pool small { color: #e1f3d8; }
 .team-count {
   font-size: 12px;
   color: #909399;
