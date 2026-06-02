@@ -108,6 +108,7 @@
             <span class="signup-player-power">战力 {{ player.powerRating }}</span>
             <el-tag v-if="redTeam.includes(player.name)" type="danger" size="small">红队</el-tag>
             <el-tag v-else-if="blackTeam.includes(player.name)" type="primary" size="small">黑队</el-tag>
+            <el-tag v-else-if="selectedSignupNameSet.has(player.name)" type="success" size="small">报名</el-tag>
             <el-tag v-else type="info" size="small">待选</el-tag>
           </div>
           <div class="signup-player-actions">
@@ -219,16 +220,15 @@ const signupPlayerStats = computed(() => {
     };
   });
 });
+const selectedSignupNameSet = computed(() => new Set(signupPlayerStats.value.map(player => player.name)));
 const predictionCandidates = computed(() => {
-  if (signupPlayerStats.value.length) return signupPlayerStats.value;
-
   return playerList.value.map(player => ({
     name: player.name,
     number: player.number,
     powerRating: player.powerRating ?? 50,
   }));
 });
-const candidatePoolSourceLabel = computed(() => signupPlayerStats.value.length ? '来源：报名名单' : '来源：年度球员池');
+const candidatePoolSourceLabel = computed(() => '来源：年度球员池');
 const statsYear = computed(() => store.currentYear || new Date().getFullYear());
 const redTeam = ref([]);
 const blackTeam = ref([]);
