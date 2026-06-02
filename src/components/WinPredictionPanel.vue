@@ -3,427 +3,305 @@
     <template #header>
       <div class="card-header">
         <span>比赛胜负预测</span>
-        <el-tooltip
-          effect="dark"
-          placement="top"
-          content="技术统计模型（z-score 标准化）+ 历史 Elo 模型加权融合，输出为 sigmoid/Elo 期望胜率"
-        >
-          <el-tag type="info">混合模型 · 年度数据驱动</el-tag>
-        </el-tooltip>
+        <el-tag type="info">年度数据驱动</el-tag>
       </div>
     </template>
-
-    <!-- 报名池：先选出今天参赛的球员，再点"随机分队"自动 55 开 -->
-    <div class="pool-section">
-      <div class="team-label pool-label">
-        报名名单
-        <span class="team-count">已选 {{ pool.length }} 人</span>
-        <span class="cfg-hint dim">先点击勾选今天报名的球员，再点"随机分队"</span>
-      </div>
-      <div class="chip-list">
-        <span
-          v-for="player in playerList"
-          :key="player.name"
-          class="chip"
-          :class="{ 'chip-pool': pool.includes(player.name) }"
-          @click="togglePool(player.name)"
+    <div class="signup-captain-section">
+      <div class="signup-captain-header">
+        <div>
+          <div class="section-title">报名名单队长</div>
+          <div class="section-subtitle">结合当前报名名单，按战力分批后在同批次里随机抽两位队长。</div>
+        </div>
+        <el-button
+          type="warning"
+          :loading="isPickingCaptains"
+          :disabled="selectedSignupPlayers.length < 2"
+          @click="pickBalancedCaptains"
         >
-          {{ player.name }}
-          <small>战 {{ player.powerRating }}</small>
-        </span>
-      </div>
-      <div class="pool-actions">
-        <el-button size="small" @click="selectAllPool">全选</el-button>
-        <el-button size="small" @click="clearPool">清空报名</el-button>
-        <el-button size="small" type="success" :disabled="pool.length < 2" @click="randomSplit">
-          随机分队（战力 55 开）
+          随机选队长
         </el-button>
+      </div>
+
+      <div class="signup-tags">
+        <el-tag type="info">报名人数 {{ selectedSignupPlayers.length }}</el-tag>
+        <el-tag type="success">年度 {{ statsYear }} 数据</el-tag>
+      </div>
+
+      <el-empty v-if="selectedSignupPlayers.length < 2" description="报名名单至少需要 2 人才可选队长" />
+
+      <div v-else-if="captainPair" class="captain-result">
+        <div class="captain-result-meta">
+          <el-tag type="warning">{{ captainPair.bucketLabel }}</el-tag>
+          <el-tag type="info">战力差 {{ captainPair.powerGap }}</el-tag>
+          <el-tag :type="captainPair.hasFallback ? 'warning' : 'success'">
+            {{ captainPair.hasFallback ? '含默认战力 50' : '全部使用年度战力' }}
+          </el-tag>
+        </div>
+
+        <div class="captain-cards">
+          <div class="captain-card captain-card-red">
+            <div class="captain-label">队长 A</div>
+            <div class="captain-name">{{ captainPair.first.name }}</div>
+            <div class="captain-number">{{ captainPair.first.number }} 号</div>
+            <div class="captain-power">战力 {{ captainPair.first.powerRating }}</div>
+          </div>
+
+          <div class="captain-vs">VS</div>
+
+          <div class="captain-card captain-card-blue">
+            <div class="captain-label">队长 B</div>
+            <div class="captain-name">{{ captainPair.second.name }}</div>
+            <div class="captain-number">{{ captainPair.second.number }} 号</div>
+            <div class="captain-power">战力 {{ captainPair.second.powerRating }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="signupPlayerStats.length" class="signup-roster-section">
+      <div class="section-title">报名名单</div>
+      <div class="signup-roster-list">
+        <div
+          v-for="player in signupPlayerStats"
+          :key="player.name"
+          class="signup-roster-item"
+          :class="signupSelectionClass(player.name)"
+        >
+          <div class="signup-player-main">
+            <span class="signup-player-number">{{ player.number }}</span>
+            <span class="signup-player-name">{{ player.name }}</span>
+          </div>
+          <div class="signup-player-meta">
+            <span class="signup-player-power">战力 {{ player.powerRating }}</span>
+            <el-tag v-if="redTeam.includes(player.name)" type="danger" size="small">红队</el-tag>
+            <el-tag v-else-if="blackTeam.includes(player.name)" type="primary" size="small">黑队</el-tag>
+            <el-tag v-else type="info" size="small">未选</el-tag>
+          </div>
+        </div>
       </div>
     </div>
 
     <el-row :gutter="20">
-      <el-col :xs="24" :md="12">
+      <el-col :span="12">
         <div class="team-select">
-          <div class="team-label red-label">
-            红队阵容
-            <span class="team-count">已选 {{ redTeam.length }} 人</span>
-          </div>
-          <div class="chip-list">
-            <span
-              v-for="player in playerList"
-              :key="player.name"
-              class="chip"
-              :class="{
-                'chip-red': redTeam.includes(player.name),
-                'chip-disabled': blackTeam.includes(player.name),
-              }"
-              @click="toggle('red', player.name)"
-            >
-              {{ player.name }}
-              <small>{{ player.gamesPlayed }}场</small>
-            </span>
-          </div>
+          <div class="team-label">红队阵容</div>
+          <el-select v-model="redTeam" multiple placeholder="选择球员" style="width: 100%">
+            <el-option v-for="player in predictionCandidates" :key="player.name" :label="player.name" :value="player.name">
+              <div class="prediction-option">
+                <span>{{ player.number }}号 {{ player.name }}</span>
+                <el-tag v-if="selectedSignupNameSet.has(player.name)" type="success" size="small">报名</el-tag>
+              </div>
+            </el-option>
+          </el-select>
         </div>
       </el-col>
-      <el-col :xs="24" :md="12">
+      <el-col :span="12">
         <div class="team-select">
-          <div class="team-label black-label">
-            黑队阵容
-            <span class="team-count">已选 {{ blackTeam.length }} 人</span>
-          </div>
-          <div class="chip-list">
-            <span
-              v-for="player in playerList"
-              :key="player.name"
-              class="chip"
-              :class="{
-                'chip-black': blackTeam.includes(player.name),
-                'chip-disabled': redTeam.includes(player.name),
-              }"
-              @click="toggle('black', player.name)"
-            >
-              {{ player.name }}
-              <small>{{ player.gamesPlayed }}场</small>
-            </span>
-          </div>
+          <div class="team-label">黑队阵容</div>
+          <el-select v-model="blackTeam" multiple placeholder="选择球员" style="width: 100%">
+            <el-option v-for="player in predictionCandidates" :key="player.name" :label="player.name" :value="player.name">
+              <div class="prediction-option">
+                <span>{{ player.number }}号 {{ player.name }}</span>
+                <el-tag v-if="selectedSignupNameSet.has(player.name)" type="success" size="small">报名</el-tag>
+              </div>
+            </el-option>
+          </el-select>
         </div>
       </el-col>
     </el-row>
-
-    <div class="sim-config">
-      <span class="cfg-label">全场目标分</span>
-      <el-input-number v-model="targetScore" :min="20" :max="400" :step="20" size="small" controls-position="right" />
-      <span class="cfg-label">最长时长(分)</span>
-      <el-input-number v-model="maxMinutes" :min="10" :max="240" :step="10" size="small" controls-position="right" />
-      <span class="cfg-hint dim">默认 4 节 × 35 = 140 分 / 一般时长 100 分钟</span>
-    </div>
-
     <div class="predict-action">
-      <el-button type="primary" @click="predictWinRate">预测胜率 & 模拟得分</el-button>
-      <el-button @click="resetTeams">清空</el-button>
+      <el-button type="primary" @click="predictWinRate">预测胜率</el-button>
     </div>
-
     <div v-if="result" class="result-section">
       <div class="result-title">预测结果</div>
-
       <el-row :gutter="20">
         <el-col :span="12">
           <div class="team-result">
-            <span class="team-name red">红队</span>
-            <span class="win-rate red">{{ result.redWinRate }}%</span>
+            <span class="team-name">红队</span>
+            <span class="win-rate">胜率：{{ result.redWinRate }}%</span>
           </div>
         </el-col>
         <el-col :span="12">
           <div class="team-result">
-            <span class="team-name black">黑队</span>
-            <span class="win-rate black">{{ result.blackWinRate }}%</span>
+            <span class="team-name">黑队</span>
+            <span class="win-rate">胜率：{{ result.blackWinRate }}%</span>
           </div>
         </el-col>
       </el-row>
-
-      <div class="bar">
-        <div class="bar-red" :style="{ width: result.redWinRate + '%' }"></div>
-        <div class="bar-black" :style="{ width: result.blackWinRate + '%' }"></div>
-      </div>
-
-      <div class="model-breakdown">
-        <div class="breakdown-row">
-          <span class="breakdown-label">技术统计模型</span>
-          <span>红 {{ result.box.redPct }}% / 黑 {{ result.box.blackPct }}%</span>
-        </div>
-        <div class="breakdown-row">
-          <span class="breakdown-label">历史 Elo 模型</span>
-          <span>
-            红 {{ result.elo.redPct }}% / 黑 {{ result.elo.blackPct }}%
-            <span class="dim">（{{ result.elo.redElo }} vs {{ result.elo.blackElo }}）</span>
-          </span>
-        </div>
-      </div>
-
-      <div class="sim-section">
-        <div class="sim-title">
-          得分模拟
-          <span class="dim">（{{ result.sim.target }} 分制 · 最长 {{ result.sim.maxMinutes }} 分钟 · 2000 次蒙特卡洛）</span>
-        </div>
-
-        <div class="sim-score">
-          <span class="sim-team red">红队</span>
-          <span class="sim-num red">{{ result.sim.expectedRed }}</span>
-          <span class="sim-sep">—</span>
-          <span class="sim-num black">{{ result.sim.expectedBlack }}</span>
-          <span class="sim-team black">黑队</span>
-        </div>
-        <div class="sim-meta">
-          预计 {{ result.sim.expectedMinutes }} 分钟结束 ·
-          红队 {{ result.sim.redRate }} 分/分钟 · 黑队 {{ result.sim.blackRate }} 分/分钟
-        </div>
-
-        <div class="sim-outcome">
-          <div class="outcome-row">
-            <span>红队先到 {{ result.sim.target }} 分</span>
-            <span class="outcome-pct red">{{ result.sim.redReachedPct }}%</span>
-          </div>
-          <div class="outcome-row">
-            <span>黑队先到 {{ result.sim.target }} 分</span>
-            <span class="outcome-pct black">{{ result.sim.blackReachedPct }}%</span>
-          </div>
-          <div class="outcome-row">
-            <span>时间到（{{ result.sim.maxMinutes }} 分钟）按比分决胜</span>
-            <span class="outcome-pct dim">{{ result.sim.timeUpPct }}%</span>
-          </div>
-        </div>
-
-        <div class="sim-trajectory">
-          <div class="sim-subtitle">样例比赛进程</div>
-          <div v-for="m in result.sim.milestones" :key="m.label + m.minute" class="ms-row">
-            <span class="ms-time">{{ m.minute }}'</span>
-            <span class="ms-label">{{ m.label }}</span>
-            <span class="ms-score">
-              <span class="red">{{ m.red }}</span>
-              <span class="sim-sep">—</span>
-              <span class="black">{{ m.black }}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="result.warnings.length" class="warnings">
-        <el-alert
-          v-for="w in result.warnings"
-          :key="w"
-          :title="w"
-          type="warning"
-          :closable="false"
-          show-icon
-          style="margin-top: 8px"
-        />
-      </div>
-
       <div class="factor-section">
-        <el-collapse>
-          <el-collapse-item title="影响因素详情" name="factors">
-            <ul>
-              <li v-for="factor in result.factors" :key="factor">{{ factor }}</li>
-            </ul>
-          </el-collapse-item>
-        </el-collapse>
+        <div>主要影响因素：</div>
+        <ul>
+          <li v-for="factor in result.factors" :key="factor">{{ factor }}</li>
+        </ul>
       </div>
     </div>
   </el-card>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ref, computed, watch } from 'vue';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
-import { combinedWinProbability, simulateMatchup } from '../utils/winPrediction';
+import { useGameStore } from '../stores/gameStore';
+import { useToastStore } from '../stores/toastStore';
 
 const store = useAnnualStatsStore();
+const gameStore = useGameStore();
+const toastStore = useToastStore();
+const POWER_BUCKET_SIZE = 8;
+
 const playerList = computed(() => store.playerAnnualStats);
-const pool = ref([]);            // 报名池：今天参赛球员名单
+const selectedSignupPlayers = computed(() => {
+  return gameStore.players.slice().sort((a, b) => {
+    const teamCompare = (a.team || '').localeCompare(b.team || '');
+    if (teamCompare !== 0) return teamCompare;
+    return (Number(a.number) || 0) - (Number(b.number) || 0);
+  });
+});
+const selectedSignupNameSet = computed(() => new Set(selectedSignupPlayers.value.map(player => player.name)));
+const signupPlayerStats = computed(() => {
+  const statsByName = new Map(playerList.value.map(player => [player.name, player]));
+  return selectedSignupPlayers.value.map(player => {
+    const stats = statsByName.get(player.name);
+    return {
+      ...player,
+      powerRating: stats?.powerRating ?? 50,
+    };
+  });
+});
+const predictionCandidates = computed(() => signupPlayerStats.value.length ? signupPlayerStats.value : playerList.value);
+const statsYear = computed(() => store.currentYear || new Date().getFullYear());
 const redTeam = ref([]);
 const blackTeam = ref([]);
 const result = ref(null);
-const targetScore = ref(140);
-const maxMinutes = ref(100);
+const captainPair = ref(null);
+const isPickingCaptains = ref(false);
 
-function resetTeams() {
-  pool.value = [];
-  redTeam.value = [];
-  blackTeam.value = [];
-  result.value = null;
+watch(predictionCandidates, (candidates) => {
+  const allowedNames = new Set(candidates.map(player => player.name));
+  redTeam.value = redTeam.value.filter(name => allowedNames.has(name));
+  blackTeam.value = blackTeam.value.filter(name => allowedNames.has(name));
+}, { immediate: true });
+
+function signupSelectionClass(playerName) {
+  if (redTeam.value.includes(playerName)) return 'signup-roster-item-red';
+  if (blackTeam.value.includes(playerName)) return 'signup-roster-item-blue';
+  return 'signup-roster-item-idle';
 }
 
-function toggle(team, name) {
-  const self = team === 'red' ? redTeam : blackTeam;
-  const other = team === 'red' ? blackTeam : redTeam;
-  if (other.value.includes(name)) return; // 在对方队伍里，不可点
-  const i = self.value.indexOf(name);
-  if (i >= 0) self.value.splice(i, 1);
-  else self.value.push(name);
-}
-
-function togglePool(name) {
-  const i = pool.value.indexOf(name);
-  if (i >= 0) pool.value.splice(i, 1);
-  else pool.value.push(name);
-}
-
-function selectAllPool() {
-  pool.value = playerList.value.map(p => p.name);
-}
-
-function clearPool() {
-  pool.value = [];
-}
-
-// 随机分队：在报名池里找一个胜率预测接近 50:50 的分组
-// 实现：400 次随机洗牌切分，按 |pRed - 0.5| 排序，从最平衡的前 10% 里随机选一个，保留随机性
-function randomSplit() {
-  if (pool.value.length < 2) {
-    ElMessage.warning('请至少选 2 名报名球员');
-    return;
-  }
-  if (!store.leagueStats) {
-    ElMessage.error('联盟统计未就绪，请稍后再试');
+async function pickBalancedCaptains() {
+  if (selectedSignupPlayers.value.length < 2) {
+    toastStore.warning('报名名单至少先选 2 人');
     return;
   }
 
-  const players = playerList.value.filter(p => pool.value.includes(p.name));
-  const n = players.length;
-  const trials = 400;
-  const candidates = [];
+  isPickingCaptains.value = true;
 
-  for (let i = 0; i < trials; i++) {
-    const shuffled = [...players].sort(() => Math.random() - 0.5);
-    const baseHalf = Math.floor(n / 2);
-    // 奇数人时随机给某队多一人，避免系统性偏向
-    const redSize = n % 2 === 0 ? baseHalf : (Math.random() < 0.5 ? baseHalf : baseHalf + 1);
-    const red = shuffled.slice(0, redSize);
-    const black = shuffled.slice(redSize);
-    const { pRed } = combinedWinProbability(red, black, store.leagueStats, store.playerEloRatings);
-    candidates.push({ red, black, pRed, diff: Math.abs(pRed - 0.5) });
+  try {
+    const statsByName = new Map(
+      playerList.value.map(player => [player.name, player.powerRating])
+    );
+    const enrichedPlayers = selectedSignupPlayers.value.map(player => {
+      const powerRating = statsByName.get(player.name);
+      return {
+        ...player,
+        powerRating: typeof powerRating === 'number' ? powerRating : 50,
+        usedFallback: typeof powerRating !== 'number',
+      };
+    });
+
+    const knownPlayers = enrichedPlayers.filter(player => !player.usedFallback);
+    const sourcePlayers = knownPlayers.length >= 2 ? knownPlayers : enrichedPlayers;
+
+    const bucketMap = new Map();
+    sourcePlayers.forEach((player) => {
+      const bucketIndex = Math.floor(player.powerRating / POWER_BUCKET_SIZE);
+      if (!bucketMap.has(bucketIndex)) {
+        bucketMap.set(bucketIndex, []);
+      }
+      bucketMap.get(bucketIndex).push(player);
+    });
+
+    const eligibleBuckets = Array.from(bucketMap.entries()).filter(([, players]) => players.length >= 2);
+    if (eligibleBuckets.length === 0) {
+      toastStore.warning('当前报名名单不足以生成队长组合');
+      return;
+    }
+
+    const randomBucket = eligibleBuckets[Math.floor(Math.random() * eligibleBuckets.length)];
+    const [bucketIndex, bucketPlayers] = randomBucket;
+    const shuffledPlayers = bucketPlayers.slice().sort(() => Math.random() - 0.5);
+    const [first, second] = shuffledPlayers;
+    const bucketStart = bucketIndex * POWER_BUCKET_SIZE;
+    const bucketEnd = bucketStart + POWER_BUCKET_SIZE - 1;
+
+    captainPair.value = {
+      first,
+      second,
+      powerGap: Math.abs(first.powerRating - second.powerRating),
+      hasFallback: first.usedFallback || second.usedFallback,
+      bucketLabel: `战力批次 ${bucketStart}-${bucketEnd}`,
+    };
+    toastStore.success(`已生成队长：${first.name} 和 ${second.name}`);
+  } catch (error) {
+    console.error('生成队长失败:', error);
+    toastStore.error(`生成队长失败: ${error.message || '未知错误'}`);
+  } finally {
+    isPickingCaptains.value = false;
   }
-
-  candidates.sort((a, b) => a.diff - b.diff);
-  const topN = Math.max(3, Math.floor(candidates.length * 0.1));
-  const chosen = candidates[Math.floor(Math.random() * topN)];
-
-  redTeam.value = chosen.red.map(p => p.name);
-  blackTeam.value = chosen.black.map(p => p.name);
-
-  ElMessage.success(
-    `已分队：红 ${chosen.red.length} 人 / 黑 ${chosen.black.length} 人，预测红队胜率 ${(chosen.pRed * 100).toFixed(1)}%`
-  );
-
-  // 自动跑一次完整预测
-  predictWinRate();
 }
 
 function predictWinRate() {
-  if (redTeam.value.length === 0 || blackTeam.value.length === 0) {
-    ElMessage.warning('请为两支队伍各选至少一名球员');
-    return;
-  }
-  const overlap = redTeam.value.filter(n => blackTeam.value.includes(n));
-  if (overlap.length > 0) {
-    ElMessage.error(`球员 ${overlap.join('、')} 不能同时出现在两队`);
-    return;
-  }
-  if (!store.leagueStats) {
-    ElMessage.error('联盟统计未就绪，请稍后再试');
-    return;
-  }
-
+  // 获取双方球员年度数据
   const redStats = playerList.value.filter(p => redTeam.value.includes(p.name));
   const blackStats = playerList.value.filter(p => blackTeam.value.includes(p.name));
 
-  const { pRed, pBlack, breakdown } = combinedWinProbability(
-    redStats,
-    blackStats,
-    store.leagueStats,
-    store.playerEloRatings,
-  );
-
-  const warnings = [];
-  const lowSample = [...redStats, ...blackStats].filter(p => p.gamesPlayed < 3);
-  if (lowSample.length > 0) {
-    warnings.push(`${lowSample.map(p => p.name).join('、')} 出场样本不足 3 场，预测置信度较低`);
-  }
-  if (redStats.length !== blackStats.length) {
-    warnings.push(`两队人数不一致（${redStats.length} vs ${blackStats.length}），已按人均能力归一化`);
+  // 团队指标
+  function calcTeamScore(stats) {
+    const totalPoints = stats.reduce((sum, p) => sum + p.avgPoints, 0);
+    const totalPlusMinus = stats.reduce((sum, p) => sum + p.avgPlusMinus, 0);
+    const totalFouls = stats.reduce((sum, p) => sum + p.avgFouls, 0);
+    const avgWinRate = stats.length > 0 ? stats.reduce((sum, p) => sum + p.winRate, 0) / stats.length : 0;
+    return {
+      totalPoints,
+      totalPlusMinus,
+      totalFouls,
+      avgWinRate
+    };
   }
 
+  const redScore = calcTeamScore(redStats);
+  const blackScore = calcTeamScore(blackStats);
+
+  // 综合评分
+  function calcComposite(s) {
+    return s.totalPoints * 0.4 + s.totalPlusMinus * 0.3 - s.totalFouls * 0.2 + s.avgWinRate * 0.1;
+  }
+
+  const redComposite = calcComposite(redScore);
+  const blackComposite = calcComposite(blackScore);
+
+  // 胜率
+  const total = redComposite + blackComposite;
+  const redWinRate = total > 0 ? ((redComposite / total) * 100).toFixed(1) : '50.0';
+  const blackWinRate = total > 0 ? ((blackComposite / total) * 100).toFixed(1) : '50.0';
+
+  // 主要影响因素
   const factors = [
-    `红队人均得分/分钟：${perMin(redStats, 'pointsPerMin')}（黑队 ${perMin(blackStats, 'pointsPerMin')}）`,
-    `红队人均正负值/分钟：${perMin(redStats, 'plusMinusPerMin')}（黑队 ${perMin(blackStats, 'plusMinusPerMin')}）`,
-    `红队人均犯规/分钟：${perMin(redStats, 'foulsPerMin')}（黑队 ${perMin(blackStats, 'foulsPerMin')}）`,
-    `红队贝叶斯调整胜率：${adjPct(redStats)}%（黑队 ${adjPct(blackStats)}%）`,
+    `红队场均得分：${redScore.totalPoints.toFixed(1)}`,
+    `黑队场均得分：${blackScore.totalPoints.toFixed(1)}`,
+    `红队场均正负值：${redScore.totalPlusMinus.toFixed(1)}`,
+    `黑队场均正负值：${blackScore.totalPlusMinus.toFixed(1)}`,
+    `红队场均犯规：${redScore.totalFouls.toFixed(1)}`,
+    `黑队场均犯规：${blackScore.totalFouls.toFixed(1)}`,
+    `红队平均胜率：${redScore.avgWinRate.toFixed(1)}%`,
+    `黑队平均胜率：${blackScore.avgWinRate.toFixed(1)}%`
   ];
 
-  // 得分模拟
-  const sim = simulateMatchup(redStats, blackStats, {
-    target: targetScore.value,
-    maxMinutes: maxMinutes.value,
-  });
-
-  // 一场样例的关键节点（每 25% 目标分一个节点）
-  const milestones = buildMilestones(sim.sampleTrajectory, targetScore.value);
-
   result.value = {
-    redWinRate: (pRed * 100).toFixed(1),
-    blackWinRate: (pBlack * 100).toFixed(1),
-    box: {
-      redPct: (breakdown.box.pRed * 100).toFixed(1),
-      blackPct: ((1 - breakdown.box.pRed) * 100).toFixed(1),
-    },
-    elo: {
-      redPct: (breakdown.elo.pRed * 100).toFixed(1),
-      blackPct: ((1 - breakdown.elo.pRed) * 100).toFixed(1),
-      redElo: breakdown.elo.redElo.toFixed(0),
-      blackElo: breakdown.elo.blackElo.toFixed(0),
-    },
-    sim: {
-      target: targetScore.value,
-      maxMinutes: maxMinutes.value,
-      expectedRed: sim.expectedRedScore.toFixed(1),
-      expectedBlack: sim.expectedBlackScore.toFixed(1),
-      expectedMinutes: sim.expectedMinutes.toFixed(1),
-      redReachedPct: (sim.redReachedPct * 100).toFixed(1),
-      blackReachedPct: (sim.blackReachedPct * 100).toFixed(1),
-      timeUpPct: (sim.timeUpPct * 100).toFixed(1),
-      redRate: sim.rates.red.toFixed(2),
-      blackRate: sim.rates.black.toFixed(2),
-      milestones,
-      finalRed: sim.sampleTrajectory[sim.sampleTrajectory.length - 1].red,
-      finalBlack: sim.sampleTrajectory[sim.sampleTrajectory.length - 1].black,
-      finalMinute: sim.sampleTrajectory[sim.sampleTrajectory.length - 1].minute,
-    },
-    factors,
-    warnings,
+    redWinRate,
+    blackWinRate,
+    factors
   };
-}
-
-function buildMilestones(traj, target) {
-  // 按 4 节切分：1节末=25%目标分，2节末=50%，3节末=75%，4节末=100%
-  const ms = [];
-  const thresholds = [1, 2, 3, 4].map(q => Math.round(target * q / 4));
-  const labels = ['1节结束', '2节结束', '3节结束', '4节结束'];
-  let idx = 0;
-  for (const point of traj) {
-    while (idx < thresholds.length && Math.max(point.red, point.black) >= thresholds[idx]) {
-      ms.push({
-        label: labels[idx],
-        minute: point.minute,
-        red: point.red,
-        black: point.black,
-      });
-      idx++;
-    }
-    if (idx >= thresholds.length) break;
-  }
-  if (ms.length === 0 || ms[ms.length - 1].minute < traj[traj.length - 1].minute) {
-    const last = traj[traj.length - 1];
-    ms.push({
-      label: last.red >= target || last.black >= target ? '比赛结束' : '时间到',
-      minute: last.minute,
-      red: last.red,
-      black: last.black,
-    });
-  }
-  return ms;
-}
-
-function perMin(players, field) {
-  if (players.length === 0) return '0.000';
-  const m = players.reduce((s, p) => s + p[field], 0) / players.length;
-  return m.toFixed(3);
-}
-
-function adjPct(players) {
-  if (players.length === 0) return '0.0';
-  const m = players.reduce((s, p) => s + p.adjustedWinRate, 0) / players.length;
-  return (m * 100).toFixed(1);
 }
 </script>
 
@@ -437,6 +315,150 @@ function adjPct(players) {
   align-items: center;
   font-weight: bold;
 }
+.signup-captain-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffaf2 0%, #fff 100%);
+}
+.signup-captain-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.section-subtitle {
+  color: #606266;
+  font-size: 13px;
+}
+.signup-roster-section {
+  margin-bottom: 20px;
+}
+.signup-roster-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.signup-roster-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+.signup-roster-item-red {
+  border-color: #f56c6c;
+  background: #fff1f0;
+  box-shadow: inset 0 0 0 1px rgba(245, 108, 108, 0.18);
+}
+.signup-roster-item-blue {
+  border-color: #409eff;
+  background: #f0f7ff;
+  box-shadow: inset 0 0 0 1px rgba(64, 158, 255, 0.18);
+}
+.signup-roster-item-idle {
+  opacity: 0.88;
+}
+.signup-player-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.signup-player-number {
+  min-width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-weight: 700;
+  color: #374151;
+}
+.signup-player-name {
+  font-weight: 700;
+  color: #1f2937;
+}
+.signup-player-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.signup-player-power {
+  font-size: 13px;
+  color: #6b7280;
+}
+.prediction-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.signup-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.captain-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.captain-result-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.captain-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.captain-card {
+  min-width: 220px;
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+.captain-card-red {
+  background: linear-gradient(135deg, #f56c6c, #fb8c62);
+}
+.captain-card-blue {
+  background: linear-gradient(135deg, #409eff, #36cfc9);
+}
+.captain-label {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+.captain-name {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.captain-number,
+.captain-power {
+  margin-top: 8px;
+  font-size: 15px;
+}
+.captain-vs {
+  font-size: 20px;
+  font-weight: 700;
+  color: #909399;
+}
 .team-select {
   margin-bottom: 16px;
 }
@@ -444,190 +466,11 @@ function adjPct(players) {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.red-label { color: #f56c6c; }
-.black-label { color: #303133; }
-.pool-label { color: #67c23a; flex-wrap: wrap; }
-.pool-section {
-  margin-bottom: 18px;
-  padding: 12px;
-  background: #f0f9eb;
-  border: 1px dashed #b3e19d;
-  border-radius: 8px;
-}
-.pool-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  justify-content: flex-end;
-}
-.chip-pool {
-  background: #67c23a;
-  border-color: #67c23a;
-  color: #fff;
-}
-.chip-pool small { color: #e1f3d8; }
-.team-count {
-  font-size: 12px;
-  color: #909399;
-  font-weight: normal;
-}
-.chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px;
-  background: #fafafa;
-  border: 1px solid #ebeef5;
-  border-radius: 6px;
-  min-height: 40px;
-}
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 14px;
-  font-size: 13px;
-  color: #303133;
-  cursor: pointer;
-  user-select: none;
-  transition: all .15s;
-}
-.chip:hover:not(.chip-disabled) {
-  border-color: #c0c4cc;
-  background: #f5f7fa;
-}
-.chip small {
-  font-size: 11px;
-  color: #909399;
-}
-.chip-red {
-  background: #f56c6c;
-  border-color: #f56c6c;
-  color: #fff;
-}
-.chip-red small { color: #fde2e2; }
-.chip-black {
-  background: #303133;
-  border-color: #303133;
-  color: #fff;
-}
-.chip-black small { color: #c0c4cc; }
-.chip-disabled {
-  opacity: .35;
-  cursor: not-allowed;
 }
 .predict-action {
   margin: 16px 0;
   text-align: center;
 }
-.sim-config {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: #fafafa;
-  border-radius: 6px;
-}
-.cfg-label {
-  font-size: 13px;
-  color: #606266;
-}
-.sim-section {
-  margin-top: 16px;
-  padding: 14px;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #ebeef5;
-}
-.sim-title {
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-.sim-score {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: 8px 0;
-}
-.sim-team {
-  font-size: 13px;
-  color: #909399;
-}
-.sim-team.red { color: #f56c6c; }
-.sim-team.black { color: #303133; }
-.sim-num {
-  font-size: 32px;
-  font-weight: bold;
-  min-width: 60px;
-  text-align: center;
-}
-.sim-num.red { color: #f56c6c; }
-.sim-num.black { color: #303133; }
-.sim-sep {
-  color: #c0c4cc;
-}
-.sim-meta {
-  text-align: center;
-  font-size: 12px;
-  color: #909399;
-  margin-bottom: 12px;
-}
-.sim-outcome {
-  font-size: 13px;
-  color: #606266;
-  background: #fafafa;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-}
-.outcome-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 3px 0;
-}
-.outcome-pct {
-  font-weight: bold;
-}
-.outcome-pct.red { color: #f56c6c; }
-.outcome-pct.black { color: #303133; }
-.outcome-pct.dim { color: #909399; }
-.sim-trajectory {
-  font-size: 13px;
-}
-.sim-subtitle {
-  color: #909399;
-  margin-bottom: 6px;
-}
-.ms-row {
-  display: flex;
-  gap: 10px;
-  padding: 3px 0;
-  align-items: baseline;
-}
-.ms-time {
-  color: #909399;
-  width: 36px;
-  font-variant-numeric: tabular-nums;
-}
-.ms-label {
-  flex: 1;
-}
-.ms-score {
-  font-variant-numeric: tabular-nums;
-}
-.ms-score .red { color: #f56c6c; font-weight: bold; }
-.ms-score .black { color: #303133; font-weight: bold; }
 .result-section {
   margin-top: 24px;
   background: #f7f7fa;
@@ -649,41 +492,9 @@ function adjPct(players) {
   font-size: 16px;
   font-weight: bold;
 }
-.team-name.red { color: #f56c6c; }
-.team-name.black { color: #303133; }
 .win-rate {
-  font-size: 22px;
-  font-weight: bold;
-}
-.win-rate.red { color: #f56c6c; }
-.win-rate.black { color: #303133; }
-.bar {
-  display: flex;
-  height: 14px;
-  border-radius: 7px;
-  overflow: hidden;
-  margin: 12px 0 16px;
-  background: #e4e7ed;
-}
-.bar-red { background: #f56c6c; }
-.bar-black { background: #303133; }
-.model-breakdown {
-  font-size: 13px;
-  color: #606266;
-  background: #fff;
-  border-radius: 6px;
-  padding: 10px 12px;
-}
-.breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-}
-.breakdown-label {
-  color: #909399;
-}
-.dim {
-  color: #c0c4cc;
+  font-size: 16px;
+  color: #409eff;
 }
 .factor-section {
   margin-top: 12px;
@@ -691,5 +502,14 @@ function adjPct(players) {
 }
 ul {
   padding-left: 20px;
+}
+@media (max-width: 768px) {
+  .signup-captain-header {
+    flex-direction: column;
+  }
+
+  .captain-cards {
+    flex-direction: column;
+  }
 }
 </style>
