@@ -75,7 +75,12 @@
             <span class="signup-player-power">战力 {{ player.powerRating }}</span>
             <el-tag v-if="redTeam.includes(player.name)" type="danger" size="small">红队</el-tag>
             <el-tag v-else-if="blackTeam.includes(player.name)" type="primary" size="small">黑队</el-tag>
-            <el-tag v-else type="info" size="small">未选</el-tag>
+            <el-tag v-else type="info" size="small">未分队</el-tag>
+          </div>
+          <div class="signup-player-actions">
+            <el-button size="small" type="danger" plain @click="assignPlayerToTeam(player.name, 'red')">红队</el-button>
+            <el-button size="small" type="primary" plain @click="assignPlayerToTeam(player.name, 'black')">黑队</el-button>
+            <el-button size="small" :disabled="!isAssigned(player.name)" @click="removeFromPrediction(player.name)">移除</el-button>
           </div>
         </div>
       </div>
@@ -85,27 +90,41 @@
       <el-col :span="12">
         <div class="team-select">
           <div class="team-label">红队阵容</div>
-          <el-select v-model="redTeam" multiple placeholder="选择球员" style="width: 100%">
-            <el-option v-for="player in predictionCandidates" :key="player.name" :label="player.name" :value="player.name">
-              <div class="prediction-option">
-                <span>{{ player.number }}号 {{ player.name }}</span>
-                <el-tag v-if="selectedSignupNameSet.has(player.name)" type="success" size="small">报名</el-tag>
-              </div>
-            </el-option>
-          </el-select>
+          <div class="selected-team-panel selected-team-panel-red">
+            <el-empty v-if="!redTeamPlayers.length" description="从报名名单分配到红队" :image-size="80" />
+            <div v-else class="selected-team-tags">
+              <el-tag
+                v-for="player in redTeamPlayers"
+                :key="`red-${player.name}`"
+                type="danger"
+                class="selected-team-tag"
+                closable
+                @close="removeFromPrediction(player.name)"
+              >
+                {{ player.number }}号 {{ player.name }}
+              </el-tag>
+            </div>
+          </div>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="team-select">
           <div class="team-label">黑队阵容</div>
-          <el-select v-model="blackTeam" multiple placeholder="选择球员" style="width: 100%">
-            <el-option v-for="player in predictionCandidates" :key="player.name" :label="player.name" :value="player.name">
-              <div class="prediction-option">
-                <span>{{ player.number }}号 {{ player.name }}</span>
-                <el-tag v-if="selectedSignupNameSet.has(player.name)" type="success" size="small">报名</el-tag>
-              </div>
-            </el-option>
-          </el-select>
+          <div class="selected-team-panel selected-team-panel-blue">
+            <el-empty v-if="!blackTeamPlayers.length" description="从报名名单分配到黑队" :image-size="80" />
+            <div v-else class="selected-team-tags">
+              <el-tag
+                v-for="player in blackTeamPlayers"
+                :key="`black-${player.name}`"
+                type="primary"
+                class="selected-team-tag"
+                closable
+                @close="removeFromPrediction(player.name)"
+              >
+                {{ player.number }}号 {{ player.name }}
+              </el-tag>
+            </div>
+          </div>
         </div>
       </el-col>
     </el-row>
@@ -152,12 +171,11 @@ const POWER_BUCKET_SIZE = 8;
 const playerList = computed(() => store.playerAnnualStats);
 const selectedSignupPlayers = computed(() => {
   return gameStore.players.slice().sort((a, b) => {
-    const teamCompare = (a.team || '').localeCompare(b.team || '');
-    if (teamCompare !== 0) return teamCompare;
-    return (Number(a.number) || 0) - (Number(b.number) || 0);
+    const numberDiff = (Number(a.number) || 0) - (Number(b.number) || 0);
+    if (numberDiff !== 0) return numberDiff;
+    return (a.name || '').localeCompare(b.name || '');
   });
 });
-const selectedSignupNameSet = computed(() => new Set(selectedSignupPlayers.value.map(player => player.name)));
 const signupPlayerStats = computed(() => {
   const statsByName = new Map(playerList.value.map(player => [player.name, player]));
   return selectedSignupPlayers.value.map(player => {
@@ -168,19 +186,44 @@ const signupPlayerStats = computed(() => {
     };
   });
 });
-const predictionCandidates = computed(() => signupPlayerStats.value.length ? signupPlayerStats.value : playerList.value);
 const statsYear = computed(() => store.currentYear || new Date().getFullYear());
 const redTeam = ref([]);
 const blackTeam = ref([]);
 const result = ref(null);
 const captainPair = ref(null);
 const isPickingCaptains = ref(false);
+const redTeamPlayers = computed(() => signupPlayerStats.value.filter(player => redTeam.value.includes(player.name)));
+const blackTeamPlayers = computed(() => signupPlayerStats.value.filter(player => blackTeam.value.includes(player.name)));
 
-watch(predictionCandidates, (candidates) => {
+watch(signupPlayerStats, (candidates) => {
   const allowedNames = new Set(candidates.map(player => player.name));
   redTeam.value = redTeam.value.filter(name => allowedNames.has(name));
   blackTeam.value = blackTeam.value.filter(name => allowedNames.has(name));
 }, { immediate: true });
+
+function isAssigned(playerName) {
+  return redTeam.value.includes(playerName) || blackTeam.value.includes(playerName);
+}
+
+function assignPlayerToTeam(playerName, team) {
+  if (team === 'red') {
+    if (!redTeam.value.includes(playerName)) {
+      redTeam.value = [...redTeam.value, playerName];
+    }
+    blackTeam.value = blackTeam.value.filter(name => name !== playerName);
+    return;
+  }
+
+  if (!blackTeam.value.includes(playerName)) {
+    blackTeam.value = [...blackTeam.value, playerName];
+  }
+  redTeam.value = redTeam.value.filter(name => name !== playerName);
+}
+
+function removeFromPrediction(playerName) {
+  redTeam.value = redTeam.value.filter(name => name !== playerName);
+  blackTeam.value = blackTeam.value.filter(name => name !== playerName);
+}
 
 function signupSelectionClass(playerName) {
   if (redTeam.value.includes(playerName)) return 'signup-roster-item-red';
@@ -392,16 +435,14 @@ function predictWinRate() {
   justify-content: space-between;
   gap: 8px;
 }
+.signup-player-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
 .signup-player-power {
   font-size: 13px;
   color: #6b7280;
-}
-.prediction-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
 }
 .signup-tags {
   display: flex;
@@ -467,6 +508,27 @@ function predictWinRate() {
   font-weight: bold;
   margin-bottom: 8px;
 }
+.selected-team-panel {
+  min-height: 120px;
+  border-radius: 12px;
+  border: 1px dashed #dcdfe6;
+  padding: 12px;
+  background: #fff;
+}
+.selected-team-panel-red {
+  background: linear-gradient(180deg, #fff7f7 0%, #fff 100%);
+}
+.selected-team-panel-blue {
+  background: linear-gradient(180deg, #f5f9ff 0%, #fff 100%);
+}
+.selected-team-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.selected-team-tag {
+  margin: 0;
+}
 .predict-action {
   margin: 16px 0;
   text-align: center;
@@ -510,6 +572,10 @@ ul {
 
   .captain-cards {
     flex-direction: column;
+  }
+
+  .signup-player-actions {
+    flex-wrap: wrap;
   }
 }
 </style>
