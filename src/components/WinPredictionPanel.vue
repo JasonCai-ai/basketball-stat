@@ -28,6 +28,7 @@
           :class="{ 'chip-pool': pool.includes(player.name) }"
           @click="togglePool(player.name)"
         >
+          <span v-if="pool.includes(player.name)" class="chip-mark">✓</span>
           {{ player.name }}
           <small>战 {{ player.powerRating }}</small>
         </span>
@@ -465,11 +466,25 @@ function adjPct(players) {
   justify-content: flex-end;
 }
 .chip-pool {
-  background: #67c23a;
-  border-color: #67c23a;
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+  border-color: #529b2e;
   color: #fff;
+  box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.18);
+  transform: translateY(-1px);
 }
 .chip-pool small { color: #e1f3d8; }
+.chip-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+}
 .team-count {
   font-size: 12px;
   color: #909399;
@@ -502,6 +517,10 @@ function adjPct(players) {
 .chip:hover:not(.chip-disabled) {
   border-color: #c0c4cc;
   background: #f5f7fa;
+}
+.chip-pool:hover:not(.chip-disabled) {
+  border-color: #529b2e;
+  background: linear-gradient(135deg, #67c23a, #85ce61);
 }
 .chip small {
   font-size: 11px;
