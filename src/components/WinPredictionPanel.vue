@@ -77,6 +77,39 @@
             <el-tag v-else-if="blackTeam.includes(player.name)" type="primary" size="small">黑队</el-tag>
             <el-tag v-else type="info" size="small">未分队</el-tag>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="candidate-pool-section">
+      <div class="candidate-pool-header">
+        <div>
+          <div class="section-title">球员候选池</div>
+          <div class="section-subtitle">在这里把球员临时分到红队或黑队做胜率预测。</div>
+        </div>
+        <div class="signup-tags candidate-pool-tags">
+          <el-tag type="warning">{{ candidatePoolSourceLabel }}</el-tag>
+          <el-tag type="info">候选 {{ predictionCandidates.length }} 人</el-tag>
+        </div>
+      </div>
+
+      <div class="signup-roster-list">
+        <div
+          v-for="player in predictionCandidates"
+          :key="`candidate-${player.name}`"
+          class="signup-roster-item"
+          :class="signupSelectionClass(player.name)"
+        >
+          <div class="signup-player-main">
+            <span class="signup-player-number">{{ player.number }}</span>
+            <span class="signup-player-name">{{ player.name }}</span>
+          </div>
+          <div class="signup-player-meta">
+            <span class="signup-player-power">战力 {{ player.powerRating }}</span>
+            <el-tag v-if="redTeam.includes(player.name)" type="danger" size="small">红队</el-tag>
+            <el-tag v-else-if="blackTeam.includes(player.name)" type="primary" size="small">黑队</el-tag>
+            <el-tag v-else type="info" size="small">待选</el-tag>
+          </div>
           <div class="signup-player-actions">
             <el-button size="small" type="danger" plain @click="assignPlayerToTeam(player.name, 'red')">红队</el-button>
             <el-button size="small" type="primary" plain @click="assignPlayerToTeam(player.name, 'black')">黑队</el-button>
@@ -186,16 +219,26 @@ const signupPlayerStats = computed(() => {
     };
   });
 });
+const predictionCandidates = computed(() => {
+  if (signupPlayerStats.value.length) return signupPlayerStats.value;
+
+  return playerList.value.map(player => ({
+    name: player.name,
+    number: player.number,
+    powerRating: player.powerRating ?? 50,
+  }));
+});
+const candidatePoolSourceLabel = computed(() => signupPlayerStats.value.length ? '来源：报名名单' : '来源：年度球员池');
 const statsYear = computed(() => store.currentYear || new Date().getFullYear());
 const redTeam = ref([]);
 const blackTeam = ref([]);
 const result = ref(null);
 const captainPair = ref(null);
 const isPickingCaptains = ref(false);
-const redTeamPlayers = computed(() => signupPlayerStats.value.filter(player => redTeam.value.includes(player.name)));
-const blackTeamPlayers = computed(() => signupPlayerStats.value.filter(player => blackTeam.value.includes(player.name)));
+const redTeamPlayers = computed(() => predictionCandidates.value.filter(player => redTeam.value.includes(player.name)));
+const blackTeamPlayers = computed(() => predictionCandidates.value.filter(player => blackTeam.value.includes(player.name)));
 
-watch(signupPlayerStats, (candidates) => {
+watch(predictionCandidates, (candidates) => {
   const allowedNames = new Set(candidates.map(player => player.name));
   redTeam.value = redTeam.value.filter(name => allowedNames.has(name));
   blackTeam.value = blackTeam.value.filter(name => allowedNames.has(name));
@@ -383,6 +426,19 @@ function predictWinRate() {
 }
 .signup-roster-section {
   margin-bottom: 20px;
+}
+.candidate-pool-section {
+  margin-bottom: 20px;
+}
+.candidate-pool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.candidate-pool-tags {
+  margin-bottom: 0;
 }
 .signup-roster-list {
   display: grid;
@@ -576,6 +632,10 @@ ul {
 
   .signup-player-actions {
     flex-wrap: wrap;
+  }
+
+  .candidate-pool-header {
+    flex-direction: column;
   }
 }
 </style>
