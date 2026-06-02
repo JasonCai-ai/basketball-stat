@@ -32,6 +32,7 @@ export const POWER_WEIGHTS = {
   box: 0.40,
   elo: 0.40,
   winRate: 0.14,    // 0.20 × 0.70
+  recentForm: 0.20,
 };
 
 export function mean(values) {
@@ -164,6 +165,19 @@ export function playerBoxRating(player, leagueStats, weights = DEFAULT_WEIGHTS) 
   return wP * zP + wPM * zPM - wF * zF + wM * zM;
 }
 
+export function playerRecentFormRating(player, leagueStats, weights = DEFAULT_WEIGHTS) {
+  const recentGamesCount = player.recentGamesCount ?? 0;
+  if (recentGamesCount <= 0) return 0;
+
+  return playerBoxRating({
+    ...player,
+    avgPoints: player.recentAvgPoints ?? 0,
+    avgPlusMinus: player.recentAvgPlusMinus ?? 0,
+    avgPlayTime: player.recentAvgPlayTime ?? 0,
+    foulsPerMin: player.recentFoulsPerMin ?? 0,
+  }, leagueStats, weights);
+}
+
 // 团队评分：按 MPG 加权平均，让常打的人权重更高（兼顾样本可信度与"上场预期"）
 export function teamBoxRating(players, leagueStats, weights = DEFAULT_WEIGHTS) {
   if (players.length === 0) return 0;
@@ -207,6 +221,7 @@ export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
   const conf = Math.min(1, totalMin / fullMin);
 
   const boxZ = playerBoxRating(player, leagueStats, weights);
+  const recentFormZ = playerRecentFormRating(player, leagueStats, weights);
   const elo = (eloRatings && typeof eloRatings.get === 'function')
     ? (eloRatings.get(player.name) ?? initial)
     : initial;
@@ -215,7 +230,7 @@ export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
   // 胜率偏移：100%→+1, 50%→0, 0%→-1（adjustedWinRate 已贝叶斯收缩，新人 ≈ 0）
   const winRateOffset = ((player.adjustedWinRate ?? 0.5) - 0.5) * 2;
 
-  const combined = (pw.box * boxZ + pw.elo * eloDelta + pw.winRate * winRateOffset) * conf;
+  const combined = (pw.box * boxZ + pw.elo * eloDelta + pw.winRate * winRateOffset + pw.recentForm * recentFormZ) * conf;
   return Math.round(100 * sigmoid(scale * combined));
 }
 

@@ -91,8 +91,9 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   // 单独抽出来：leagueStats 需要它，而带战力值的版本又需要 leagueStats，避免循环依赖
   const basePlayerAnnualStats = computed(() => {
     const statsMap = new Map();
+    const sortedGames = [...gamesData.value].sort((a, b) => a.date.localeCompare(b.date));
 
-    gamesData.value.forEach((game, index) => {
+    sortedGames.forEach((game, index) => {
       const gameInfo = game.data?.game?.[0] || {};
       const players = gameInfo.players || [];
       const teamScores = gameInfo.teamScores || {};
@@ -129,7 +130,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
             totalPlayTime: 0,
             totalFouls: 0,
             wins: 0,
-            losses: 0
+            losses: 0,
+            recentGames: []
           });
         }
 
@@ -149,6 +151,16 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
             stats.losses += 1;
           }
         }
+
+        stats.recentGames.push({
+          points: player.score || 0,
+          plusMinus: player.plusMinus || 0,
+          playTime,
+          fouls: player.fouls || 0,
+        });
+        if (stats.recentGames.length > 5) {
+          stats.recentGames.shift();
+        }
       });
     });
 
@@ -156,6 +168,15 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       const totalMinutes = stats.totalPlayTime / 60;
       const safeMin = totalMinutes > 0 ? totalMinutes : 0;
       const decided = stats.wins + stats.losses; // 排除平局
+      const recentGamesCount = stats.recentGames.length;
+      const recentTotals = stats.recentGames.reduce((acc, game) => {
+        acc.points += game.points;
+        acc.plusMinus += game.plusMinus;
+        acc.playTime += game.playTime;
+        acc.fouls += game.fouls;
+        return acc;
+      }, { points: 0, plusMinus: 0, playTime: 0, fouls: 0 });
+      const recentMinutes = recentTotals.playTime / 60;
       return {
         name: stats.name,
         number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '),
@@ -175,6 +196,11 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         plusMinusPerMin:  safeMin > 0 ? stats.totalPlusMinus  / safeMin : 0,
         foulsPerMin:      safeMin > 0 ? stats.totalFouls      / safeMin : 0,
         adjustedWinRate:  shrinkWinRate(stats.wins, decided),
+        recentGamesCount,
+        recentAvgPoints: recentGamesCount > 0 ? recentTotals.points / recentGamesCount : 0,
+        recentAvgPlusMinus: recentGamesCount > 0 ? recentTotals.plusMinus / recentGamesCount : 0,
+        recentAvgPlayTime: recentGamesCount > 0 ? recentTotals.playTime / recentGamesCount / 60 : 0,
+        recentFoulsPerMin: recentMinutes > 0 ? recentTotals.fouls / recentMinutes : 0,
       };
     }).sort((a, b) => b.totalPoints - a.totalPoints);
   });
