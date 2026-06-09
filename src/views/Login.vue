@@ -88,11 +88,13 @@ const handleLogin = () => {
 }
 
 .login-box {
-  width: 350px;
+  width: 100%;
+  max-width: 350px;
   padding: 35px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 h2 {
@@ -107,5 +109,22 @@ h2 {
 
 .login-button {
   width: 100%;
+}
+
+/* 手机端适配 */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .login-box {
+    padding: 24px 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
 }
 </style> 
