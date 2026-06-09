@@ -103,6 +103,29 @@
           </div>
         </div>
 
+        <!-- 比赛合照 -->
+        <div v-if="matchPhotos.length" class="match-photos">
+          <h3 class="team-title photo-title">比赛合照</h3>
+          <div class="photo-grid">
+            <el-image
+              v-for="(url, i) in matchPhotos"
+              :key="url"
+              :src="url"
+              :preview-src-list="matchPhotos"
+              :initial-index="i"
+              fit="cover"
+              class="photo-thumb"
+              preview-teleported
+              hide-on-click-modal
+              loading="lazy"
+            >
+              <template #error>
+                <div class="photo-error">图片加载失败</div>
+              </template>
+            </el-image>
+          </div>
+        </div>
+
         <!-- 红队球员数据 -->
         <h3 class="team-title red-title">红队球员数据</h3>
         <el-table :data="redPlayers" stripe border size="small" style="width: 100%;">
@@ -266,6 +289,12 @@ const buildPlayers = (team) => {
 
 const redPlayers = computed(() => buildPlayers('红队'));
 const blackPlayers = computed(() => buildPlayers('黑队'));
+
+// 当前比赛的合照 URL 列表
+const matchPhotos = computed(() => {
+  if (!selectedMatch.value) return [];
+  return store.getGamePhotos(selectedMatch.value.date);
+});
 
 // 返回主页
 const goBack = () => {
@@ -535,6 +564,42 @@ onMounted(async () => {
   font-weight: bold;
   color: #E6A23C;
   font-size: 15px;
+}
+
+/* 比赛合照 */
+.photo-title {
+  color: #409EFF;
+  border-color: #409EFF;
+}
+
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.photo-thumb {
+  width: 160px;
+  height: 120px;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  background: #f5f7fa;
+  transition: transform 0.15s;
+}
+
+.photo-thumb:hover {
+  transform: scale(1.03);
+}
+
+.photo-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  color: #c0c4cc;
 }
 
 /* 响应式设计 */

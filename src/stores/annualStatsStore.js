@@ -12,6 +12,10 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   const currentYear = ref(new Date().getFullYear());
   const gamesData = ref([]);
   const filesConfig = ref({});
+  // 比赛合照配置：{ "YYYY-MM-DD": ["photos/xxx.jpg", ...] }，路径相对于 data/{year}/
+  const photosConfig = ref({});
+
+  const CDN_BASE = 'https://jasoncai-ai.github.io/basketball-stat/data';
   
   // 获取文件配置（每次都从CDN拉取最新数据）
   async function fetchFilesConfig(year) {
@@ -56,14 +60,40 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     }
   }
 
+  // 获取比赛合照配置（可选，缺失属正常情况，不影响主流程）
+  async function fetchPhotosConfig(year) {
+    const timestamp = Date.now();
+    const configUrl = `${CDN_BASE}/${year}/basketball_photos_config.json?t=${timestamp}`;
+
+    try {
+      const response = await fetch(configUrl, { cache: 'no-cache' });
+      if (!response.ok) {
+        photosConfig.value = {};
+        return {};
+      }
+      const config = await response.json();
+      photosConfig.value = config || {};
+      return photosConfig.value;
+    } catch (error) {
+      console.warn('获取照片配置失败（忽略）:', error);
+      photosConfig.value = {};
+      return {};
+    }
+  }
+
   // 加载年度所有数据
   async function loadYearData(year) {
     loading.value = true;
     currentYear.value = year;
     gamesData.value = [];
+    photosConfig.value = {};
 
     try {
-      const config = await fetchFilesConfig(year);
+      // 照片配置与比赛数据并行获取；照片缺失不应阻断比赛数据加载
+      const [config] = await Promise.all([
+        fetchFilesConfig(year),
+        fetchPhotosConfig(year),
+      ]);
       
       if (!config || Object.keys(config).length === 0) {
         throw new Error('没有找到比赛数据');
@@ -207,6 +237,18 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
 
   const totalGames = computed(() => gamesData.value.length);
 
+  // 获取某场比赛的合照完整 URL 列表（无照片则返回空数组）
+  const getGamePhotos = computed(() => {
+    return (date) => {
+      const entry = photosConfig.value[date];
+      if (!entry) return [];
+      const list = Array.isArray(entry) ? entry : [entry];
+      return list
+        .filter(Boolean)
+        .map((path) => `${CDN_BASE}/${currentYear.value}/${path}`);
+    };
+  });
+
   // 预测模型用：联盟级 mean/std，用于 z-score 标准化
   const leagueStats = computed(() => computeLeagueStats(basePlayerAnnualStats.value));
 
@@ -272,9 +314,11 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     currentYear,
     gamesData,
     filesConfig,
+    photosConfig,
     playerAnnualStats,
     totalGames,
     getPlayerHistory,
+    getGamePhotos,
     loadYearData,
     leagueStats,
     playerEloRatings,
