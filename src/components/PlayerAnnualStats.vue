@@ -97,7 +97,7 @@
           <el-tooltip
             effect="dark"
             placement="top"
-            content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、出场分钟置信度。"
+            content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、RAPM(调整后正负值)、胜率与出场置信度。"
           >
             <span>战力值</span>
           </el-tooltip>
@@ -237,10 +237,14 @@ const playerHistoryData = ref([]);
 
 const dialogWidth = computed(() => (props.isMobile ? '96%' : '90%'));
 
+// 场次太少（<3）的球员样本不足，不纳入年度统计展示
+const MIN_GAMES_SHOWN = 3;
+
 const filteredStats = computed(() => {
-  if (!searchText.value) return store.playerAnnualStats;
+  const eligible = store.playerAnnualStats.filter((p) => p.gamesPlayed >= MIN_GAMES_SHOWN);
+  if (!searchText.value) return eligible;
   const search = searchText.value.toLowerCase();
-  return store.playerAnnualStats.filter(
+  return eligible.filter(
     (p) => p.name.toLowerCase().includes(search) || p.number.toLowerCase().includes(search)
   );
 });
@@ -271,10 +275,11 @@ const getPowerType = (value) => {
 const EMPTY_CHEM = { bestTeammate: null, worstTeammate: null, bestOpponent: null, worstOpponent: null };
 const getChem = (name) => store.playerChemistry.get(name) || EMPTY_CHEM;
 
-// 化学反应 tooltip 文案：最搭 · 同场5场 · 胜率80% · 场均+8.2
+// 化学反应 tooltip 文案：最搭 · 同场5场 · 胜率80% · 校正净值+8.2
+// 校正净值 = 同场时的正负值经 RAPM 对手/队友强度校正后的场均残差
 const chemTip = (label, info) => {
   const pm = info.avgPlusMinus > 0 ? `+${info.avgPlusMinus}` : `${info.avgPlusMinus}`;
-  return `${label}：${info.name} · 同场${info.games}场 · 胜率${info.winRate}% · 场均${pm}`;
+  return `${label}：${info.name} · 同场${info.games}场 · 胜率${info.winRate}% · 校正净值${pm}`;
 };
 </script>
 

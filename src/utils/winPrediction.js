@@ -27,12 +27,14 @@ export const DEFAULT_OPTS = {
   powerScale: 1.1,   // 战力值 sigmoid 温度
 };
 
-// 战力值三层权重：技术统计 / Elo / 胜率
+// 战力值各层权重：技术统计 / Elo / RAPM / 胜率 / 近期状态
+// RAPM 约占 27%（中等比重）：既体现"调整后真实贡献"，又不被其偏弱的信号带偏。
 export const POWER_WEIGHTS = {
-  box: 0.40,
-  elo: 0.40,
-  winRate: 0.14,    // 0.20 × 0.70
-  recentForm: 0.20,
+  box: 0.32,
+  elo: 0.30,
+  rapm: 0.32,       // RAPM z-score（占比 ≈ 0.32/1.18 ≈ 27%）
+  winRate: 0.11,
+  recentForm: 0.13,
 };
 
 export function mean(values) {
@@ -90,7 +92,7 @@ export function computeLeagueStats(players, minGames = 3) {
   const eligible = players.filter(p => p.gamesPlayed >= minGames);
   const sample = eligible.length >= 3 ? eligible : players;
 
-  const fields = ['avgPoints', 'avgPlusMinus', 'pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate', 'avgPlayTime'];
+  const fields = ['avgPoints', 'avgPlusMinus', 'pointsPerMin', 'plusMinusPerMin', 'foulsPerMin', 'adjustedWinRate', 'avgPlayTime', 'rapm'];
   const stats = {};
   for (const f of fields) {
     const values = sample.map(p => p[f] ?? 0);
@@ -140,6 +142,136 @@ export function computeEloRatings(gamesData, opts = {}) {
   }
 
   return ratings;
+}
+
+// ===== RAPM（Regularized Adjusted Plus-Minus，正则化调整正负值）=====
+// 思路：每场分差 = 红队实力 − 黑队实力；每队实力 = 队内按上场时间占比加权的 RAPM 之和。
+// 用岭回归从历史比赛解出每名球员的 RAPM（控制掉队友/对手强弱），λ 用留一交叉验证选。
+// 因每场都重新分红黑队，同一人出现在不同阵容里，个人贡献才得以被识别。
+export const RAPM_PM_SCALE = 10; // RAPM 强度差 → "应得正负值" 的换算系数（可调，故意保守）
+
+// 线性方程组求解：高斯消元 + 部分主元
+function solveLinear(A, b) {
+  const n = b.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let piv = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r;
+    [M[c], M[piv]] = [M[piv], M[c]];
+    const pv = M[c][c];
+    if (Math.abs(pv) < 1e-12) continue;
+    for (let r = 0; r < n; r++) {
+      if (r !== c && M[r][c] !== 0) {
+        const f = M[r][c] / pv;
+        for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k];
+      }
+    }
+  }
+  return M.map((row, i) => (Math.abs(M[i][i]) > 1e-12 ? row[n] / M[i][i] : 0));
+}
+
+// 把一场比赛转成 RAPM 设计向量：红队球员 +sec/L、黑队 −sec/L（L=场长≈总人秒/10）
+// 返回 { x: 稀疏向量[{j,v}], y: 红队分差 } 或 null（数据不全）
+function rapmGameRow(gameInfo, idx) {
+  const teamScores = gameInfo.teamScores || {};
+  const active = (gameInfo.players || [])
+    .map(p => ({ name: p.name, team: p.team, sec: (p.totalTime || 0) + (p.currentTime || 0) }))
+    .filter(p => p.sec > 0 && idx.has(p.name));
+  const red = active.filter(p => p.team === '红队');
+  const black = active.filter(p => p.team === '黑队');
+  if (red.length === 0 || black.length === 0) return null;
+  const total = active.reduce((s, p) => s + p.sec, 0);
+  const L = total / 10; // 10 个在场名额估算场长
+  if (L <= 0) return null;
+  const x = [];
+  for (const p of red) x.push({ j: idx.get(p.name), v: p.sec / L });
+  for (const p of black) x.push({ j: idx.get(p.name), v: -p.sec / L });
+  return { x, y: (teamScores['红队'] || 0) - (teamScores['黑队'] || 0) };
+}
+
+// 岭回归：minimize ||y − Xβ||² + λ||β||²  →  (XᵀX + λI)β = Xᵀy
+function ridgeSolve(rows, P, lambda) {
+  const A = Array.from({ length: P }, () => new Array(P).fill(0));
+  const bb = new Array(P).fill(0);
+  for (const { x, y } of rows) {
+    for (const a of x) {
+      bb[a.j] += a.v * y;
+      for (const b of x) A[a.j][b.j] += a.v * b.v;
+    }
+  }
+  for (let j = 0; j < P; j++) A[j][j] += lambda;
+  return solveLinear(A, bb);
+}
+
+// 留一交叉验证下某 λ 预测每场分差的均方误差（越小越好）
+function rapmLooError(rows, P, lambda) {
+  let err = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const train = rows.filter((_, k) => k !== i);
+    const beta = ridgeSolve(train, P, lambda);
+    const pred = rows[i].x.reduce((s, a) => s + a.v * beta[a.j], 0);
+    err += (rows[i].y - pred) ** 2;
+  }
+  return err / rows.length;
+}
+
+// 主入口：跑一遍历史比赛，返回 Map<球员名, RAPM>
+// gamesData: [{ data: { game: [{ players, teamScores }] } }]
+export function computeRapmRatings(gamesData, opts = {}) {
+  const grid = opts.lambdaGrid ?? [1, 2, 5, 10, 20, 30, 50, 100];
+  const result = new Map();
+  if (!gamesData || gamesData.length === 0) return result;
+
+  // 收集所有上过场的球员
+  const names = [...new Set(
+    gamesData.flatMap(g => (g?.data?.game?.[0]?.players || [])
+      .filter(p => ((p.totalTime || 0) + (p.currentTime || 0)) > 0)
+      .map(p => p.name))
+  )].sort();
+  names.forEach(n => result.set(n, 0));
+  const P = names.length;
+  if (P === 0) return result;
+  const idx = new Map(names.map((n, i) => [n, i]));
+
+  const rows = gamesData
+    .map(g => g?.data?.game?.[0])
+    .filter(Boolean)
+    .map(gi => rapmGameRow(gi, idx))
+    .filter(Boolean);
+  // 样本太少时岭回归没意义，全部记 0
+  if (rows.length < 3) return result;
+
+  let bestLam = grid[0];
+  let bestErr = Infinity;
+  for (const lam of grid) {
+    const e = rapmLooError(rows, P, lam);
+    if (e < bestErr) { bestErr = e; bestLam = lam; }
+  }
+  const beta = ridgeSolve(rows, P, bestLam);
+  names.forEach((n, i) => result.set(n, beta[i]));
+  return result;
+}
+
+// 一组在场球员的按上场分钟加权 RAPM 均值
+// players: [{ name, minutes }]
+export function minuteWeightedRapm(players, rapmMap) {
+  if (!players || players.length === 0 || !rapmMap) return 0;
+  let sw = 0, swr = 0;
+  for (const p of players) {
+    const w = Math.max(p.minutes || 0, 0);
+    sw += w;
+    swr += w * (rapmMap.get(p.name) ?? 0);
+  }
+  return sw > 0 ? swr / sw : 0;
+}
+
+// 用 RAPM 估某球员本场的"应得正负值"：队友越强、对手越弱，应得越高
+// subject: { name, team }；onCourt: 全场上场球员 [{ name, team, minutes }]
+export function rapmExpectedPlusMinus(subject, onCourt, rapmMap, scale = RAPM_PM_SCALE) {
+  if (!rapmMap || rapmMap.size === 0) return 0;
+  const mates = onCourt.filter(p => p.team === subject.team && p.name !== subject.name);
+  const opps = onCourt.filter(p => p.team !== subject.team);
+  return scale * (minuteWeightedRapm(mates, rapmMap) - minuteWeightedRapm(opps, rapmMap));
 }
 
 // 单球员技术统计能力评分（已 z-score 化的加权和）
@@ -230,7 +362,18 @@ export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
   // 胜率偏移：100%→+1, 50%→0, 0%→-1（adjustedWinRate 已贝叶斯收缩，新人 ≈ 0）
   const winRateOffset = ((player.adjustedWinRate ?? 0.5) - 0.5) * 2;
 
-  const combined = (pw.box * boxZ + pw.elo * eloDelta + pw.winRate * winRateOffset + pw.recentForm * recentFormZ) * conf;
+  // RAPM 偏移：联盟 z-score；无 rapm 分布时该项为 0（不影响其它消费方）
+  const rapmZ = leagueStats.rapm
+    ? zScore(player.rapm ?? 0, leagueStats.rapm.mean, leagueStats.rapm.std)
+    : 0;
+
+  const combined = (
+    pw.box * boxZ
+    + pw.elo * eloDelta
+    + (pw.rapm ?? 0) * rapmZ
+    + pw.winRate * winRateOffset
+    + pw.recentForm * recentFormZ
+  ) * conf;
   return Math.round(100 * sigmoid(scale * combined));
 }
 

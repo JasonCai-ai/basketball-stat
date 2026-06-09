@@ -3,6 +3,8 @@ import { ref, computed } from 'vue';
 import {
   computeLeagueStats,
   computeEloRatings,
+  computeRapmRatings,
+  rapmExpectedPlusMinus,
   shrinkWinRate,
   playerPowerRating,
 } from '../utils/winPrediction';
@@ -120,6 +122,10 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     }
   }
 
+  // 球员 RAPM（正则化调整正负值）：基于全季比赛岭回归得出，Map<球员名, rapm>
+  // 仅依赖 gamesData，无循环依赖；供战力值 / 当场表现 / 搭配克制 共用
+  const playerRapmRatings = computed(() => computeRapmRatings(gamesData.value));
+
   // 球员年度基础统计（不含战力值，作为内部计算源）
   // 单独抽出来：leagueStats 需要它，而带战力值的版本又需要 leagueStats，避免循环依赖
   const basePlayerAnnualStats = computed(() => {
@@ -197,6 +203,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       });
     });
 
+    const rapmMap = playerRapmRatings.value;
     return Array.from(statsMap.values()).map(stats => {
       const totalMinutes = stats.totalPlayTime / 60;
       const safeMin = totalMinutes > 0 ? totalMinutes : 0;
@@ -234,6 +241,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         recentAvgPlusMinus: recentGamesCount > 0 ? recentTotals.plusMinus / recentGamesCount : 0,
         recentAvgPlayTime: recentGamesCount > 0 ? recentTotals.playTime / recentGamesCount / 60 : 0,
         recentFoulsPerMin: recentMinutes > 0 ? recentTotals.fouls / recentMinutes : 0,
+        // RAPM：供战力值 z-score 用（联盟分布由 computeLeagueStats 统计）
+        rapm: rapmMap.get(stats.name) ?? 0,
       };
     }).sort((a, b) => b.totalPoints - a.totalPoints);
   });
@@ -329,6 +338,8 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
       return inner.get(q);
     };
 
+    const rapmMap = playerRapmRatings.value;
+
     gamesData.value.forEach((game) => {
       const gameInfo = game.data?.game?.[0] || {};
       const teamScores = gameInfo.teamScores || {};
@@ -341,6 +352,19 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         (p) => (p.totalTime || 0) + (p.currentTime || 0) > 0
       );
 
+      // 本场在场阵容（含分钟），用于 RAPM 强度校正
+      const onCourt = played.map((p) => ({
+        name: p.name,
+        team: p.team,
+        minutes: ((p.totalTime || 0) + (p.currentTime || 0)) / 60,
+      }));
+      // 预算每名球员的"残差正负值"= 实际 − RAPM 应得（打强阵/克强敌才算数）
+      const adjPM = new Map();
+      played.forEach((p) => {
+        const expected = rapmExpectedPlusMinus({ name: p.name, team: p.team }, onCourt, rapmMap);
+        adjPM.set(p.name, (p.plusMinus || 0) - expected);
+      });
+
       played.forEach((P) => {
         const pWon = winningTeam ? (P.team === winningTeam ? 1 : 0) : null;
         played.forEach((Q) => {
@@ -348,7 +372,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
           const root = P.team === Q.team ? teammate : opponent;
           const rec = ensure(root, P.name, Q.name);
           rec.games += 1;
-          rec.sumPM += P.plusMinus || 0;
+          rec.sumPM += adjPM.get(P.name) || 0;
           if (pWon !== null) rec.wins += pWon; // 平局不计入胜，但 games 已计入
         });
       });
@@ -408,6 +432,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     totalGames,
     getPlayerHistory,
     playerChemistry,
+    playerRapmRatings,
     getGamePhotos,
     loadYearData,
     leagueStats,

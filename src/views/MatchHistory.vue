@@ -237,7 +237,9 @@ const playedPlayers = computed(() => {
 });
 
 // 基于全场分布计算每名球员的"当场表现"评语
-const performanceMap = computed(() => evaluatePerformances(playedPlayers.value));
+const performanceMap = computed(() =>
+  evaluatePerformances(playedPlayers.value, store.playerRapmRatings)
+);
 
 // 将某队的球员数据整理为表格数据（按得分倒序），并附上当场表现评语
 const buildPlayers = (team) => {

@@ -2,6 +2,9 @@
 // 根据球员单场数据（得分 / 正负值 / 犯规 / 出场时间），结合全场所有上场球员的
 // 整体分布做标准化（z-score），再映射到网络热梗评语（夯爆了 / 拉完了 / 燃尽了 等）。
 // 用全场分布而非绝对阈值，能自动适配不同比赛的比分尺度与强度。
+// 若传入 rapmMap，则正负值会按 RAPM 做"对手/队友强度校正"：打强阵、克强敌才算夯。
+
+import { rapmExpectedPlusMinus } from './winPrediction';
 
 function average(arr) {
   if (arr.length === 0) return 0;
@@ -38,14 +41,26 @@ export function buildKey(p) {
   return `${p.team}-${p.number}-${p.name}`;
 }
 
-export function evaluatePerformances(players) {
+export function evaluatePerformances(players, rapmMap = null) {
   const map = new Map();
   if (!players || players.length === 0) return map;
 
+  // 全场在场阵容（含分钟），用于 RAPM 强度校正
+  const onCourt = players.map((p) => ({
+    name: p.name,
+    team: p.team,
+    minutes: p.playMinutes || 0,
+  }));
+
   const enriched = players.map((p) => {
     const minutes = p.playMinutes || 0;
-    // 综合表现分：得分为主，正负值次之，犯规为负向，作为原始打分
-    const value = (p.score || 0) * 1.0 + (p.plusMinus || 0) * 0.8 - (p.fouls || 0) * 1.2;
+    // 残差正负值 = 实际 − RAPM 应得（无 rapmMap 时应得为 0，退化为原始正负值）
+    const expected = rapmMap
+      ? rapmExpectedPlusMinus({ name: p.name, team: p.team }, onCourt, rapmMap)
+      : 0;
+    const adjPlusMinus = (p.plusMinus || 0) - expected;
+    // 综合表现分：得分为主，（校正后）正负值次之，犯规为负向，作为原始打分
+    const value = (p.score || 0) * 1.0 + adjPlusMinus * 0.8 - (p.fouls || 0) * 1.2;
     return { p, minutes, fouls: p.fouls || 0, plusMinus: p.plusMinus || 0, value };
   });
 
