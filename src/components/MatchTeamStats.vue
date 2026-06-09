@@ -10,9 +10,9 @@
       size="small"
       style="width: 100%;"
     >
-      <el-table-column type="index" label="#" width="44" align="center" />
-      <el-table-column prop="number" label="号码" width="60" align="center" />
-      <el-table-column prop="name" label="姓名" min-width="90" align="center" />
+      <el-table-column type="index" label="#" width="44" align="center" fixed="left" />
+      <el-table-column prop="number" label="号码" width="60" align="center" fixed="left" />
+      <el-table-column prop="name" label="姓名" width="90" align="center" fixed="left" />
       <el-table-column prop="score" label="得分" width="70" align="center" sortable>
         <template #default="{ row }">
           <span class="highlight-points">{{ row.score }}</span>
