@@ -474,6 +474,7 @@ onUnmounted(() => {
 .detail-team-name {
   font-size: 18px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .detail-team-name.red {

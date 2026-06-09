@@ -1,3 +1,10 @@
+/* iOS Safari 会自动放大正文字号（text autosizing），导致手机上文字超大、错位。
+   强制按 CSS 实际字号渲染，这是移动端必备的一条全局规则。 */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     padding: 20px;
@@ -591,6 +598,10 @@ h3 span.fouls {
 
 /* 响应式布局改进 */
 @media (max-width: 768px) {
+  body {
+    padding: 0;
+  }
+
   .app-container {
     padding: 10px;
   }
