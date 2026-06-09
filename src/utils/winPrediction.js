@@ -27,14 +27,13 @@ export const DEFAULT_OPTS = {
   powerScale: 1.1,   // 战力值 sigmoid 温度
 };
 
-// 战力值各层权重：技术统计 / Elo / RAPM / 胜率 / 近期状态
-// RAPM 约占 27%（中等比重）：既体现"调整后真实贡献"，又不被其偏弱的信号带偏。
+// 战力值各层权重：技术统计 / Elo / 胜率 / 近期状态
+// 战力值不融入 RAPM（RAPM 信号偏弱，仅用于当场表现 / 搭配克制的强度校正）。
 export const POWER_WEIGHTS = {
-  box: 0.32,
-  elo: 0.30,
-  rapm: 0.32,       // RAPM z-score（占比 ≈ 0.32/1.18 ≈ 27%）
-  winRate: 0.11,
-  recentForm: 0.13,
+  box: 0.40,
+  elo: 0.40,
+  winRate: 0.14,    // 0.20 × 0.70
+  recentForm: 0.20,
 };
 
 export function mean(values) {
@@ -340,8 +339,9 @@ export function teamRates(players, onCourt = 5) {
 }
 
 // 单球员战力值 0-100
-// 公式：技术统计 + Elo 偏移 + 胜率偏移 三层加权 → 总分钟数置信度收缩 → sigmoid 映射
+// 公式：技术统计 + Elo 偏移 + 胜率偏移 + 近期状态 加权 → 总分钟数置信度收缩 → sigmoid 映射
 // 设计：50 = 联盟平均；新人数据被收缩到 50 附近，老球员可拉开差距；与预测模型同源
+// 注意：战力值不融入 RAPM（保持原口径，避免被偏弱的 RAPM 信号带偏）
 export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
   const initial = opts.initial ?? DEFAULT_OPTS.eloInitial;
   const scale   = opts.powerScale ?? DEFAULT_OPTS.powerScale;
@@ -362,15 +362,9 @@ export function playerPowerRating(player, leagueStats, eloRatings, opts = {}) {
   // 胜率偏移：100%→+1, 50%→0, 0%→-1（adjustedWinRate 已贝叶斯收缩，新人 ≈ 0）
   const winRateOffset = ((player.adjustedWinRate ?? 0.5) - 0.5) * 2;
 
-  // RAPM 偏移：联盟 z-score；无 rapm 分布时该项为 0（不影响其它消费方）
-  const rapmZ = leagueStats.rapm
-    ? zScore(player.rapm ?? 0, leagueStats.rapm.mean, leagueStats.rapm.std)
-    : 0;
-
   const combined = (
     pw.box * boxZ
     + pw.elo * eloDelta
-    + (pw.rapm ?? 0) * rapmZ
     + pw.winRate * winRateOffset
     + pw.recentForm * recentFormZ
   ) * conf;

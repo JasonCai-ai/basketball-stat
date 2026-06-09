@@ -97,7 +97,7 @@
           <el-tooltip
             effect="dark"
             placement="top"
-            content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、RAPM(调整后正负值)、胜率与出场置信度。"
+            content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、胜率、近期状态与出场置信度。"
           >
             <span>战力值</span>
           </el-tooltip>
