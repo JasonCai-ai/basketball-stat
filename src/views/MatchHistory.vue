@@ -85,7 +85,7 @@
     <el-dialog
       v-model="showDetailDialog"
       :title="detailTitle"
-      width="92%"
+      :width="dialogWidth"
       top="5vh"
       :close-on-click-modal="false"
     >
@@ -127,76 +127,20 @@
         </div>
 
         <!-- 红队球员数据 -->
-        <h3 class="team-title red-title">红队球员数据</h3>
-        <el-table :data="redPlayers" stripe border size="small" style="width: 100%;">
-          <el-table-column type="index" label="#" width="44" align="center" />
-          <el-table-column prop="number" label="号码" width="60" align="center" />
-          <el-table-column prop="name" label="姓名" min-width="90" align="center" />
-          <el-table-column prop="score" label="得分" width="70" align="center" sortable>
-            <template #default="{ row }">
-              <span class="highlight-points">{{ row.score }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="plusMinus" label="正负值" width="90" align="center" sortable>
-            <template #default="{ row }">
-              <el-tag :type="getPlusMinusType(row.plusMinus)">
-                {{ row.plusMinus > 0 ? '+' : '' }}{{ row.plusMinus }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="playMinutes" label="时长(分)" width="90" align="center" sortable />
-          <el-table-column prop="fouls" label="犯规" width="70" align="center" sortable />
-          <el-table-column label="当场表现" width="110" align="center">
-            <template #default="{ row }">
-              <el-tooltip
-                v-if="row.performance"
-                effect="dark"
-                placement="top"
-                :content="row.performance.desc"
-              >
-                <el-tag :type="row.performance.type" :effect="row.performance.effect">
-                  {{ row.performance.text }}
-                </el-tag>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
+        <MatchTeamStats
+          title="红队球员数据"
+          title-class="red-title"
+          :players="redPlayers"
+          :is-mobile="isMobile"
+        />
 
         <!-- 黑队球员数据 -->
-        <h3 class="team-title black-title">黑队球员数据</h3>
-        <el-table :data="blackPlayers" stripe border size="small" style="width: 100%;">
-          <el-table-column type="index" label="#" width="44" align="center" />
-          <el-table-column prop="number" label="号码" width="60" align="center" />
-          <el-table-column prop="name" label="姓名" min-width="90" align="center" />
-          <el-table-column prop="score" label="得分" width="70" align="center" sortable>
-            <template #default="{ row }">
-              <span class="highlight-points">{{ row.score }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="plusMinus" label="正负值" width="90" align="center" sortable>
-            <template #default="{ row }">
-              <el-tag :type="getPlusMinusType(row.plusMinus)">
-                {{ row.plusMinus > 0 ? '+' : '' }}{{ row.plusMinus }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="playMinutes" label="时长(分)" width="90" align="center" sortable />
-          <el-table-column prop="fouls" label="犯规" width="70" align="center" sortable />
-          <el-table-column label="当场表现" width="110" align="center">
-            <template #default="{ row }">
-              <el-tooltip
-                v-if="row.performance"
-                effect="dark"
-                placement="top"
-                :content="row.performance.desc"
-              >
-                <el-tag :type="row.performance.type" :effect="row.performance.effect">
-                  {{ row.performance.text }}
-                </el-tag>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
+        <MatchTeamStats
+          title="黑队球员数据"
+          title-class="black-title"
+          :players="blackPlayers"
+          :is-mobile="isMobile"
+        />
       </div>
 
       <template #footer>
@@ -207,15 +151,24 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
 import { ElMessage } from 'element-plus';
 import { Refresh, Loading, CaretLeft } from '@element-plus/icons-vue';
 import { evaluatePerformances, buildKey } from '../utils/performance';
+import MatchTeamStats from '../components/MatchTeamStats.vue';
 
 const router = useRouter();
 const RefreshIcon = Refresh;
+
+// 移动端判断（用于切换详情里的表格 / 卡片布局）
+const isMobile = ref(false);
+let mediaQuery = null;
+const handleMediaChange = (e) => { isMobile.value = e.matches; };
+
+// 详情对话框宽度：手机更宽以充分利用屏幕
+const dialogWidth = computed(() => (isMobile.value ? '96%' : '92%'));
 
 const store = useAnnualStatsStore();
 const selectedYear = ref(new Date().getFullYear());
@@ -334,19 +287,22 @@ const formatDate = (dateStr) => {
   return `${y}年${m}月${d}日 ${weekdays[date.getDay()]}`;
 };
 
-// 获取正负值标签类型
-const getPlusMinusType = (value) => {
-  const num = parseFloat(value);
-  if (num > 0) return 'success';
-  if (num < 0) return 'danger';
-  return 'info';
-};
-
 // 初始化
 onMounted(async () => {
+  // 监听视口宽度，切换详情里的表格 / 卡片布局
+  mediaQuery = window.matchMedia('(max-width: 768px)');
+  isMobile.value = mediaQuery.matches;
+  mediaQuery.addEventListener('change', handleMediaChange);
+
   // 若已有数据则直接复用，避免重复加载
   if (store.gamesData.length === 0) {
     await handleYearChange(selectedYear.value);
+  }
+});
+
+onUnmounted(() => {
+  if (mediaQuery) {
+    mediaQuery.removeEventListener('change', handleMediaChange);
   }
 });
 </script>
@@ -550,22 +506,6 @@ onMounted(async () => {
   border-left: 4px solid;
 }
 
-.red-title {
-  color: #F56C6C;
-  border-color: #F56C6C;
-}
-
-.black-title {
-  color: #303133;
-  border-color: #303133;
-}
-
-.highlight-points {
-  font-weight: bold;
-  color: #E6A23C;
-  font-size: 15px;
-}
-
 /* 比赛合照 */
 .photo-title {
   color: #409EFF;
@@ -621,12 +561,58 @@ onMounted(async () => {
     flex-wrap: wrap;
   }
 
+  .history-main {
+    padding: 12px;
+  }
+
+  /* 比赛列表卡片更紧凑 */
+  .match-body {
+    padding: 12px;
+  }
+
+  .team-name {
+    font-size: 15px;
+    width: 42px;
+  }
+
+  .team-score {
+    font-size: 18px;
+  }
+
+  .match-status {
+    width: 84px;
+  }
+
+  .status-text {
+    font-size: 13px;
+  }
+
+  /* 详情：比分概览缩小 */
   .detail-score {
     gap: 14px;
+    padding: 6px 0 14px;
+  }
+
+  .detail-team {
+    gap: 8px;
+  }
+
+  .detail-team-name {
+    font-size: 16px;
   }
 
   .detail-team-score {
     font-size: 28px;
+  }
+
+  /* 合照缩略图改为两列自适应 */
+  .photo-grid {
+    gap: 8px;
+  }
+
+  .photo-thumb {
+    width: calc(50% - 4px);
+    height: 110px;
   }
 }
 </style>
