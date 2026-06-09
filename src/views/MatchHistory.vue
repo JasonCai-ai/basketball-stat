@@ -131,7 +131,6 @@
           title="红队球员数据"
           title-class="red-title"
           :players="redPlayers"
-          :is-mobile="isMobile"
         />
 
         <!-- 黑队球员数据 -->
@@ -139,7 +138,6 @@
           title="黑队球员数据"
           title-class="black-title"
           :players="blackPlayers"
-          :is-mobile="isMobile"
         />
       </div>
 
