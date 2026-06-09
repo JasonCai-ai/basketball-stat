@@ -243,7 +243,12 @@ const performanceMap = computed(() => evaluatePerformances(playedPlayers.value))
 const buildPlayers = (team) => {
   return playedPlayers.value
     .filter((p) => p.team === team)
-    .map((p) => ({ ...p, performance: performanceMap.value.get(buildKey(p)) }))
+    .map((p) => ({
+      ...p,
+      performance: performanceMap.value.get(buildKey(p)),
+      // 化学反应基于整季数据，与当前选中比赛无关，按姓名取
+      chemistry: store.playerChemistry.get(p.name) || null,
+    }))
     .sort((a, b) => (parseInt(a.number, 10) || 0) - (parseInt(b.number, 10) || 0));
 };
 

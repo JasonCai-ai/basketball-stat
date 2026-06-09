@@ -16,6 +16,9 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   const photosConfig = ref({});
 
   const CDN_BASE = 'https://jasoncai-ai.github.io/basketball-stat/data';
+
+  // 化学反应（最夯/最拉 队友与对手）：两人至少同场这么多次才纳入候选
+  const MIN_CHEMISTRY_GAMES = 3;
   
   // 获取文件配置（每次都从CDN拉取最新数据）
   async function fetchFilesConfig(year) {
@@ -309,6 +312,92 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     };
   });
 
+  // 球员"化学反应"：基于全季数据，算出每名球员的
+  //   最夯/最拉 队友（同队时表现最好/最差）与 最夯/最拉 对手（最好打/最克我）
+  // 综合分 score = 胜率*100 + 场均正负值*3（胜率为主，正负值微调），均取该球员本人视角
+  // 返回 Map<球员名, { bestTeammate, worstTeammate, bestOpponent, worstOpponent }>
+  //   每个值为 { name, games, winRate, avgPlusMinus, score } 或 null（无达标候选）
+  const playerChemistry = computed(() => {
+    // pairStats: Map<P名, Map<Q名, { games, wins, sumPM }>>
+    const teammate = new Map();
+    const opponent = new Map();
+
+    const ensure = (root, p, q) => {
+      if (!root.has(p)) root.set(p, new Map());
+      const inner = root.get(p);
+      if (!inner.has(q)) inner.set(q, { name: q, games: 0, wins: 0, sumPM: 0 });
+      return inner.get(q);
+    };
+
+    gamesData.value.forEach((game) => {
+      const gameInfo = game.data?.game?.[0] || {};
+      const teamScores = gameInfo.teamScores || {};
+      const redScore = teamScores['红队'] || 0;
+      const blackScore = teamScores['黑队'] || 0;
+      const winningTeam = redScore > blackScore ? '红队' : (blackScore > redScore ? '黑队' : null);
+
+      // 只取真正上场的球员
+      const played = (gameInfo.players || []).filter(
+        (p) => (p.totalTime || 0) + (p.currentTime || 0) > 0
+      );
+
+      played.forEach((P) => {
+        const pWon = winningTeam ? (P.team === winningTeam ? 1 : 0) : null;
+        played.forEach((Q) => {
+          if (P.name === Q.name) return;
+          const root = P.team === Q.team ? teammate : opponent;
+          const rec = ensure(root, P.name, Q.name);
+          rec.games += 1;
+          rec.sumPM += P.plusMinus || 0;
+          if (pWon !== null) rec.wins += pWon; // 平局不计入胜，但 games 已计入
+        });
+      });
+    });
+
+    // 把一名球员的某类关系（队友/对手）里达标的候选，挑出 score 最高/最低
+    const pickExtremes = (innerMap) => {
+      const candidates = [];
+      if (innerMap) {
+        innerMap.forEach((rec) => {
+          if (rec.games < MIN_CHEMISTRY_GAMES) return;
+          const winRate = rec.wins / rec.games;
+          const avgPlusMinus = rec.sumPM / rec.games;
+          const score = winRate * 100 + avgPlusMinus * 3;
+          candidates.push({
+            name: rec.name,
+            games: rec.games,
+            winRate: parseFloat((winRate * 100).toFixed(1)),
+            avgPlusMinus: parseFloat(avgPlusMinus.toFixed(1)),
+            score,
+          });
+        });
+      }
+      if (candidates.length === 0) return { best: null, worst: null };
+      let best = candidates[0];
+      let worst = candidates[0];
+      candidates.forEach((c) => {
+        if (c.score > best.score) best = c;
+        if (c.score < worst.score) worst = c;
+      });
+      // 仅一个候选时，最夯=最拉=同一人，避免重复展示则 worst 置空
+      return { best, worst: candidates.length > 1 ? worst : null };
+    };
+
+    const names = new Set([...teammate.keys(), ...opponent.keys()]);
+    const result = new Map();
+    names.forEach((name) => {
+      const mate = pickExtremes(teammate.get(name));
+      const opp = pickExtremes(opponent.get(name));
+      result.set(name, {
+        bestTeammate: mate.best,
+        worstTeammate: mate.worst,
+        bestOpponent: opp.best,
+        worstOpponent: opp.worst,
+      });
+    });
+    return result;
+  });
+
   return {
     loading,
     currentYear,
@@ -318,6 +407,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     playerAnnualStats,
     totalGames,
     getPlayerHistory,
+    playerChemistry,
     getGamePhotos,
     loadYearData,
     leagueStats,
