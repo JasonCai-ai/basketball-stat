@@ -108,6 +108,74 @@
           </el-tag>
         </template>
       </el-table-column>
+
+      <!-- 搭子：最夯(最搭) / 最拉(最不搭) 队友，基于全季数据，同场≥3场 -->
+      <el-table-column label="搭子" width="120" align="center">
+        <template #header>
+          <el-tooltip
+            effect="dark"
+            placement="top"
+            content="基于全季历史：同队≥3场，谁跟他最搭(绿)/最不搭(红)"
+          >
+            <span>搭子 <el-icon class="hint-icon"><InfoFilled /></el-icon></span>
+          </el-tooltip>
+        </template>
+        <template #default="{ row }">
+          <div class="chem-cell">
+            <el-tooltip
+              v-if="getChem(row.name).bestTeammate"
+              effect="dark"
+              placement="top"
+              :content="chemTip('最搭', getChem(row.name).bestTeammate)"
+            >
+              <el-tag type="success" size="small" effect="light">{{ getChem(row.name).bestTeammate.name }}</el-tag>
+            </el-tooltip>
+            <el-tooltip
+              v-if="getChem(row.name).worstTeammate"
+              effect="dark"
+              placement="top"
+              :content="chemTip('最不搭', getChem(row.name).worstTeammate)"
+            >
+              <el-tag type="danger" size="small" effect="light">{{ getChem(row.name).worstTeammate.name }}</el-tag>
+            </el-tooltip>
+            <span v-if="!getChem(row.name).bestTeammate && !getChem(row.name).worstTeammate" class="chem-empty">-</span>
+          </div>
+        </template>
+      </el-table-column>
+
+      <!-- 对手：最夯(最好打) / 最拉(最克我) 对手 -->
+      <el-table-column label="对手" width="120" align="center">
+        <template #header>
+          <el-tooltip
+            effect="dark"
+            placement="top"
+            content="基于全季历史：对位≥3场，他最好打(绿)/最克他(红)"
+          >
+            <span>对手 <el-icon class="hint-icon"><InfoFilled /></el-icon></span>
+          </el-tooltip>
+        </template>
+        <template #default="{ row }">
+          <div class="chem-cell">
+            <el-tooltip
+              v-if="getChem(row.name).bestOpponent"
+              effect="dark"
+              placement="top"
+              :content="chemTip('最好打', getChem(row.name).bestOpponent)"
+            >
+              <el-tag type="success" size="small" effect="light">{{ getChem(row.name).bestOpponent.name }}</el-tag>
+            </el-tooltip>
+            <el-tooltip
+              v-if="getChem(row.name).worstOpponent"
+              effect="dark"
+              placement="top"
+              :content="chemTip('最克我', getChem(row.name).worstOpponent)"
+            >
+              <el-tag type="danger" size="small" effect="light">{{ getChem(row.name).worstOpponent.name }}</el-tag>
+            </el-tooltip>
+            <span v-if="!getChem(row.name).bestOpponent && !getChem(row.name).worstOpponent" class="chem-empty">-</span>
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- 球员历史数据对话框 -->
@@ -153,7 +221,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
-import { Search } from '@element-plus/icons-vue';
+import { Search, InfoFilled } from '@element-plus/icons-vue';
 
 const props = defineProps({
   isMobile: { type: Boolean, default: false },
@@ -198,6 +266,16 @@ const getPowerType = (value) => {
   if (value >= 30) return 'info';
   return '';
 };
+
+// 化学反应：按姓名取该球员的 最夯/最拉 队友与对手（无则返回空对象）
+const EMPTY_CHEM = { bestTeammate: null, worstTeammate: null, bestOpponent: null, worstOpponent: null };
+const getChem = (name) => store.playerChemistry.get(name) || EMPTY_CHEM;
+
+// 化学反应 tooltip 文案：最搭 · 同场5场 · 胜率80% · 场均+8.2
+const chemTip = (label, info) => {
+  const pm = info.avgPlusMinus > 0 ? `+${info.avgPlusMinus}` : `${info.avgPlusMinus}`;
+  return `${label}：${info.name} · 同场${info.games}场 · 胜率${info.winRate}% · 场均${pm}`;
+};
 </script>
 
 <style scoped>
@@ -224,5 +302,23 @@ const getPowerType = (value) => {
 .high-win-rate {
   font-weight: bold;
   color: #67C23A;
+}
+
+/* 搭子 / 对手 单元格：上下叠放两个 tag */
+.chem-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.chem-empty {
+  color: #c0c4cc;
+}
+
+.hint-icon {
+  font-size: 12px;
+  color: #909399;
+  vertical-align: -1px;
 }
 </style>
