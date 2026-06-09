@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Configuration from '../views/Configuration.vue'
 import AnnualStats from '../views/AnnualStats.vue'
+import MatchHistory from '../views/MatchHistory.vue'
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
     path: '/annual-stats',
     name: 'AnnualStats',
     component: AnnualStats,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/match-history',
+    name: 'MatchHistory',
+    component: MatchHistory,
     meta: { requiresAuth: true }
   }
 ]
