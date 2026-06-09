@@ -98,9 +98,16 @@ const handleLogin = () => {
 }
 
 h2 {
+  /* 覆盖 main.css 的全局 h2{display:flex} + h2::before{🏀}，避免标题被挤成竖排 */
+  display: block;
   text-align: center;
   margin-bottom: 25px;
   color: #303133;
+  font-size: 22px;
+}
+
+h2::before {
+  content: none;
 }
 
 .login-form {
