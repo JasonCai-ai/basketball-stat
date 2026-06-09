@@ -35,49 +35,54 @@
           <el-icon class="is-loading" :size="50">
             <Loading />
           </el-icon>
-          <p>正在加载 {{ selectedYear }} 年赛程...</p>
+          <p>正在加载 {{ selectedYear }} 年数据...</p>
         </div>
 
-        <!-- 比赛列表 -->
-        <div v-else-if="matchList.length > 0" class="match-list">
-          <div
-            v-for="match in matchList"
-            :key="match.date"
-            class="match-card"
-            @click="showMatchDetail(match)"
-          >
-            <div class="match-date">{{ formatDate(match.date) }}</div>
-            <div class="match-body">
-              <div class="teams">
-                <div class="team-row" :class="{ winner: match.winner === '红队' }">
-                  <span class="team-dot red"></span>
-                  <span class="team-name">红队</span>
-                  <span class="team-score">{{ match.redScore }}</span>
-                  <el-icon v-if="match.winner === '红队'" class="win-arrow"><CaretLeft /></el-icon>
+        <el-tabs v-else v-model="activeTab" class="history-tabs">
+          <!-- Tab 1：比分记录 -->
+          <el-tab-pane label="比分记录" name="matches">
+            <div v-if="matchList.length > 0" class="match-list">
+              <div
+                v-for="match in matchList"
+                :key="match.date"
+                class="match-card"
+                @click="showMatchDetail(match)"
+              >
+                <div class="match-date">{{ formatDate(match.date) }}</div>
+                <div class="match-body">
+                  <div class="teams">
+                    <div class="team-row" :class="{ winner: match.winner === '红队' }">
+                      <span class="team-dot red"></span>
+                      <span class="team-name">红队</span>
+                      <span class="team-score">{{ match.redScore }}</span>
+                      <el-icon v-if="match.winner === '红队'" class="win-arrow"><CaretLeft /></el-icon>
+                    </div>
+                    <div class="team-row" :class="{ winner: match.winner === '黑队' }">
+                      <span class="team-dot black"></span>
+                      <span class="team-name">黑队</span>
+                      <span class="team-score">{{ match.blackScore }}</span>
+                      <el-icon v-if="match.winner === '黑队'" class="win-arrow"><CaretLeft /></el-icon>
+                    </div>
+                  </div>
+                  <div class="match-status">
+                    <span class="status-text">已结束</span>
+                    <span class="status-sub">{{ match.playerCount }}人参与</span>
+                  </div>
                 </div>
-                <div class="team-row" :class="{ winner: match.winner === '黑队' }">
-                  <span class="team-dot black"></span>
-                  <span class="team-name">黑队</span>
-                  <span class="team-score">{{ match.blackScore }}</span>
-                  <el-icon v-if="match.winner === '黑队'" class="win-arrow"><CaretLeft /></el-icon>
-                </div>
-              </div>
-              <div class="match-status">
-                <span class="status-text">已结束</span>
-                <span class="status-sub">{{ match.playerCount }}人参与</span>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 空状态 -->
-        <el-empty
-          v-else
-          description="暂无比赛记录"
-          :image-size="200"
-        >
-          <el-button type="primary" @click="refreshData">加载数据</el-button>
-        </el-empty>
+            <el-empty v-else description="暂无比赛记录" :image-size="160">
+              <el-button type="primary" @click="refreshData">加载数据</el-button>
+            </el-empty>
+          </el-tab-pane>
+
+          <!-- Tab 2：球员年度统计 -->
+          <el-tab-pane label="球员年度统计" name="players">
+            <PlayerAnnualStats v-if="store.playerAnnualStats.length > 0" :is-mobile="isMobile" />
+            <el-empty v-else description="暂无球员统计" :image-size="160" />
+          </el-tab-pane>
+        </el-tabs>
       </el-main>
     </el-container>
 
@@ -156,9 +161,13 @@ import { ElMessage } from 'element-plus';
 import { Refresh, Loading, CaretLeft } from '@element-plus/icons-vue';
 import { evaluatePerformances, buildKey } from '../utils/performance';
 import MatchTeamStats from '../components/MatchTeamStats.vue';
+import PlayerAnnualStats from '../components/PlayerAnnualStats.vue';
 
 const router = useRouter();
 const RefreshIcon = Refresh;
+
+// 当前 Tab：比分记录 / 球员年度统计
+const activeTab = ref('matches');
 
 // 移动端判断（用于切换详情里的表格 / 卡片布局）
 const isMobile = ref(false);
