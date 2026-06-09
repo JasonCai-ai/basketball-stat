@@ -10,6 +10,15 @@ body {
     padding: 20px;
     background-color: #f9f9f9;
     color: #333;
+    /* 禁止整页横向溢出——一旦溢出，iOS 会借此再次放大字体 */
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* 字号自动放大兜底：作用到所有元素，避免个别组件覆盖 html 上的设置 */
+* {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 input,

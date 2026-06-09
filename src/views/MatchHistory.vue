@@ -588,10 +588,16 @@ onUnmounted(() => {
     font-size: 13px;
   }
 
-  /* 详情：比分概览缩小 */
+  .status-text,
+  .status-sub {
+    white-space: nowrap;
+  }
+
+  /* 详情：比分概览缩小，且允许换行避免溢出截断 */
   .detail-score {
-    gap: 14px;
+    gap: 10px;
     padding: 6px 0 14px;
+    flex-wrap: wrap;
   }
 
   .detail-team {
