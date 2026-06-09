@@ -37,7 +37,7 @@ const routes = [
     path: '/match-history',
     name: 'MatchHistory',
     component: MatchHistory,
-    meta: { requiresAuth: true }
+    // 历史比分记录免登录，可直接访问
   }
 ]
 
