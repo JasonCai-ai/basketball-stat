@@ -170,6 +170,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
             totalFouls: 0,
             wins: 0,
             losses: 0,
+            results: [], // 按时间顺序记录每场胜负（'W'/'L'，平局不记），用于计算当前连胜/连败
             recentGames: []
           });
         }
@@ -186,8 +187,10 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         if (winningTeam) {
           if (player.team === winningTeam) {
             stats.wins += 1;
+            stats.results.push('W');
           } else {
             stats.losses += 1;
+            stats.results.push('L');
           }
         }
 
@@ -217,6 +220,16 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         return acc;
       }, { points: 0, plusMinus: 0, playTime: 0, fouls: 0 });
       const recentMinutes = recentTotals.playTime / 60;
+      // 当前连胜/连败：从最近一场往前数，同结果连续的场次数
+      // 正数=连胜，负数=连败，0=无已决赛果
+      let streak = 0;
+      if (stats.results.length > 0) {
+        const last = stats.results[stats.results.length - 1];
+        for (let i = stats.results.length - 1; i >= 0 && stats.results[i] === last; i--) {
+          streak += 1;
+        }
+        if (last === 'L') streak = -streak;
+      }
       return {
         name: stats.name,
         number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '),
@@ -230,6 +243,7 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
         wins: stats.wins,
         losses: stats.losses,
         winRate: parseFloat(stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0'),
+        streak,
         // 预测专用字段：精确分钟、人均效率、贝叶斯调整胜率
         totalMinutes,
         pointsPerMin:     safeMin > 0 ? stats.totalPoints     / safeMin : 0,

@@ -92,6 +92,14 @@
         </template>
       </el-table-column>
 
+      <el-table-column prop="streak" label="连胜/连败" width="110" align="center" sortable>
+        <template #default="{ row }">
+          <el-tag v-if="row.streak > 0" type="success">{{ row.streak }}连胜</el-tag>
+          <el-tag v-else-if="row.streak < 0" type="danger">{{ -row.streak }}连败</el-tag>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="powerRating" label="战力值" width="100" align="center" sortable>
         <template #header>
           <el-tooltip
