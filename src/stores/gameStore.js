@@ -44,7 +44,6 @@ export const useGameStore = defineStore('game', () => {
     { id: 9, name: '庆敏', number: '8' },
     { id: 10, name: '李陈超', number: '9' },
     { id: 11, name: '祝程', number: '10' },
-    { id: 12, name: '林铎', number: '11' },
     { id: 13, name: '志滨', number: '13' },
     { id: 14, name: '伟国', number: '15' },
     { id: 15, name: '龙腾', number: '16' },
@@ -62,6 +61,8 @@ export const useGameStore = defineStore('game', () => {
     { id: 27, name: '烟佬', number: '04' },
     { id: 28, name: '老板', number: '42' },
     { id: 29, name: '潘玮柏', number: '45' },
+    { id: 30, name: '胡麟', number: '12' },
+    { id: 31, name: '伟杰', number: '36' },
   ]);
 
   // 初始化数据库
@@ -820,4 +821,4 @@ export const useGameStore = defineStore('game', () => {
     getAllPeriods,
     getEventTypeName,
   };
-}); 
+});
