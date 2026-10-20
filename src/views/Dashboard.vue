@@ -13,7 +13,7 @@
         </el-tag>
       </div>
       <div class="header-actions">
-        <el-button size="small" @click="router.push(company ? '/dashboard' : '/company')">{{ company ? '日常比赛' : '公司比赛' }}</el-button>
+        <el-button v-if="!company" size="small" @click="router.push('/company')">公司比赛</el-button>
         <el-button size="small" type="warning" @click="goToMatchHistory">
           <el-icon><Calendar /></el-icon> 比分记录
         </el-button>
@@ -89,7 +89,7 @@ const goToMatchHistory = () => {
 
 const logout = () => {
   localStorage.removeItem('isAuthenticated');
-  router.push('/login');
+  router.push(props.company ? { path: '/login', query: { redirect: '/company' } } : '/login');
 }
 </script>
 

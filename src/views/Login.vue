@@ -1,8 +1,8 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h2>篮球比赛统计系统</h2>
-      <el-radio-group v-model="destination" class="workspace-picker">
+      <h2>{{ companyLogin ? '公司篮球赛' : '篮球比赛统计系统' }}</h2>
+      <el-radio-group v-if="!companyLogin" v-model="destination" class="workspace-picker">
         <el-radio-button value="/dashboard">日常比赛</el-radio-button>
         <el-radio-button value="/company">公司比赛</el-radio-button>
       </el-radio-group>
@@ -35,13 +35,15 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
-const destination = ref(route.query.redirect === '/company' ? '/company' : '/dashboard')
+const companyLogin = computed(() => route.query.redirect === '/company')
+const destination = ref(companyLogin.value ? '/company' : '/dashboard')
+watch(companyLogin, value => { destination.value = value ? '/company' : '/dashboard' })
 const loginFormRef = ref(null)
 const loading = ref(false)
 
