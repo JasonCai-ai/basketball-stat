@@ -19,7 +19,7 @@
     </el-button-group>
     
     <el-button type="danger" @click="clearData" icon="Delete">
-      清除所有数据
+      {{ gameStore.isCompany ? '清除当前比赛' : '清除所有数据' }}
     </el-button>
     
     <el-tag :type="gameStore.isGameRunning ? 'success' : 'info'" effect="dark" class="status-tag">
@@ -60,4 +60,4 @@ const clearData = () => gameStore.clearData();
 .status-tag, .period-tag {
   margin-left: 10px;
 }
-</style> 
+</style>

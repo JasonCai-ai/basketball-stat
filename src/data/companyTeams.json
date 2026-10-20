@@ -1,0 +1,374 @@
+[
+  {
+    "id": "team-1",
+    "name": "爱康国兵",
+    "players": [
+      {
+        "name": "蔡庆敏",
+        "number": "8"
+      },
+      {
+        "name": "冼文灏",
+        "number": "2"
+      },
+      {
+        "name": "林祝程",
+        "number": "10"
+      },
+      {
+        "name": "陈爱文",
+        "number": "5"
+      },
+      {
+        "name": "邓郁涛",
+        "number": "30"
+      },
+      {
+        "name": "叶永军",
+        "number": "28"
+      },
+      {
+        "name": "崔同兵",
+        "number": "32"
+      },
+      {
+        "name": "荣赶丁",
+        "number": "16"
+      },
+      {
+        "name": "李青",
+        "number": "11"
+      },
+      {
+        "name": "陈日康",
+        "number": "7"
+      },
+      {
+        "name": "萧伟国",
+        "number": "15"
+      },
+      {
+        "name": "张屹剑",
+        "number": "33"
+      },
+      {
+        "name": "蓝惠池",
+        "number": "22"
+      }
+    ]
+  },
+  {
+    "id": "team-2",
+    "name": "IMO队",
+    "players": [
+      {
+        "name": "李观印",
+        "number": "0"
+      },
+      {
+        "name": "陈晓锋",
+        "number": "12"
+      },
+      {
+        "name": "关健辉",
+        "number": "11"
+      },
+      {
+        "name": "关健哲",
+        "number": "17"
+      },
+      {
+        "name": "何锦治",
+        "number": "30"
+      },
+      {
+        "name": "李瀚鑫",
+        "number": "1"
+      },
+      {
+        "name": "林新源",
+        "number": "13"
+      },
+      {
+        "name": "刘宇轩",
+        "number": "24"
+      },
+      {
+        "name": "李洋超",
+        "number": "26"
+      },
+      {
+        "name": "张文正",
+        "number": "22"
+      },
+      {
+        "name": "宋鹏飞",
+        "number": "8"
+      },
+      {
+        "name": "尹建华",
+        "number": "10"
+      }
+    ]
+  },
+  {
+    "id": "team-3",
+    "name": "AI 说稳了队",
+    "players": [
+      {
+        "name": "兰田",
+        "number": "5"
+      },
+      {
+        "name": "杜航宇",
+        "number": "8"
+      },
+      {
+        "name": "张伟杰",
+        "number": "36"
+      },
+      {
+        "name": "方桂亮",
+        "number": "13"
+      },
+      {
+        "name": "胡麟",
+        "number": "12"
+      },
+      {
+        "name": "梁佳健",
+        "number": "99"
+      },
+      {
+        "name": "眭哲豪",
+        "number": "6"
+      },
+      {
+        "name": "唐佳鑫",
+        "number": "20"
+      },
+      {
+        "name": "王靖",
+        "number": "10"
+      },
+      {
+        "name": "胡崇浩",
+        "number": "19"
+      },
+      {
+        "name": "胡宸浩",
+        "number": "0"
+      },
+      {
+        "name": "李宏强",
+        "number": "56"
+      },
+      {
+        "name": "张秀钊",
+        "number": "18"
+      },
+      {
+        "name": "刘志浪",
+        "number": "17"
+      },
+      {
+        "name": "范建军",
+        "number": "11"
+      },
+      {
+        "name": "邱凯",
+        "number": "3"
+      },
+      {
+        "name": "陈荣聪",
+        "number": "7"
+      }
+    ]
+  },
+  {
+    "id": "team-4",
+    "name": "直播语音队",
+    "players": [
+      {
+        "name": "陈辉明",
+        "number": "30"
+      },
+      {
+        "name": "许宏斌",
+        "number": "20"
+      },
+      {
+        "name": "余楚放",
+        "number": "3"
+      },
+      {
+        "name": "甘德华",
+        "number": "4"
+      },
+      {
+        "name": "胡锦培",
+        "number": "14"
+      },
+      {
+        "name": "郑方庆",
+        "number": "55"
+      },
+      {
+        "name": "陈晓涛",
+        "number": "8"
+      },
+      {
+        "name": "王聪冲",
+        "number": "10"
+      },
+      {
+        "name": "刘凯",
+        "number": "77"
+      },
+      {
+        "name": "周兴邦",
+        "number": "16"
+      },
+      {
+        "name": "彭民",
+        "number": "13"
+      },
+      {
+        "name": "蔡基都",
+        "number": "23"
+      },
+      {
+        "name": "黄燕达",
+        "number": "15"
+      },
+      {
+        "name": "杨镇波",
+        "number": "7"
+      },
+      {
+        "name": "宋乃斌",
+        "number": "2"
+      },
+      {
+        "name": "杜艺聪",
+        "number": "5"
+      },
+      {
+        "name": "王汉志",
+        "number": "6"
+      },
+      {
+        "name": "代凡",
+        "number": "22"
+      }
+    ]
+  },
+  {
+    "id": "team-5",
+    "name": "创新项目队",
+    "players": [
+      {
+        "name": "陈洁松",
+        "number": "10"
+      },
+      {
+        "name": "梁观全",
+        "number": "32"
+      },
+      {
+        "name": "林泽武",
+        "number": "45"
+      },
+      {
+        "name": "云峰",
+        "number": "18"
+      },
+      {
+        "name": "邹伟俊",
+        "number": "11"
+      },
+      {
+        "name": "邓区",
+        "number": "3"
+      },
+      {
+        "name": "杨志滨",
+        "number": "13"
+      },
+      {
+        "name": "邓达",
+        "number": "9"
+      },
+      {
+        "name": "廖志诚",
+        "number": "1"
+      },
+      {
+        "name": "王俊波",
+        "number": "7"
+      },
+      {
+        "name": "马振乐",
+        "number": "8"
+      },
+      {
+        "name": "龙腾",
+        "number": "16"
+      }
+    ]
+  },
+  {
+    "id": "team-6",
+    "name": "七小队",
+    "players": [
+      {
+        "name": "李涛",
+        "number": "12"
+      },
+      {
+        "name": "李陈超",
+        "number": "1"
+      },
+      {
+        "name": "谢建锋",
+        "number": "30"
+      },
+      {
+        "name": "范潇",
+        "number": "7"
+      },
+      {
+        "name": "邓英华",
+        "number": "10"
+      },
+      {
+        "name": "梁焯锋",
+        "number": "3"
+      },
+      {
+        "name": "赖榕增",
+        "number": "35"
+      },
+      {
+        "name": "蒋涉权",
+        "number": "9"
+      },
+      {
+        "name": "张浩",
+        "number": "8"
+      },
+      {
+        "name": "伍军鹏",
+        "number": "55"
+      },
+      {
+        "name": "庄晓杰",
+        "number": "0"
+      },
+      {
+        "name": "蒋德为",
+        "number": "28"
+      }
+    ]
+  }
+]

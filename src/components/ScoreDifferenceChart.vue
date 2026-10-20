@@ -23,6 +23,7 @@ import * as echarts from 'echarts';
 const gameStore = useGameStore();
 const chartContainer = ref(null);
 let chartInstance = null;
+let resizeObserver = null;
 const maxDifference = ref(0);
 const currentDifference = ref(0);
 let currentScorePlayers = []; // 存储当前得分球员信息
@@ -145,7 +146,7 @@ const updateChart = () => {
         // 如果有得分球员信息，显示
         if (scorePlayers && scorePlayers[dataIndex]) {
           const playerInfo = scorePlayers[dataIndex];
-          result += `<span style="font-weight: bold; color: ${playerInfo.team === '红队' ? '#ef4444' : '#3b82f6'};">${playerInfo.team} ${playerInfo.player}(${playerInfo.number}号) +${playerInfo.points}分</span><br/>`;
+          result += `<span style="font-weight: bold; color: ${playerInfo.team === '红队' ? '#ef4444' : '#3b82f6'};">${gameStore.teamLabel(playerInfo.team)} ${playerInfo.player}(${playerInfo.number}号) +${playerInfo.points}分</span><br/>`;
         }
         
         params.forEach(param => {
@@ -180,7 +181,7 @@ const updateChart = () => {
     },
     series: [
       {
-        name: '红队得分',
+        name: gameStore.teamLabel('红队') + '得分',
         type: 'line',
         data: redScores.length > 0 ? redScores : [0],
         smooth: true,
@@ -232,7 +233,7 @@ const updateChart = () => {
         } : null
       },
       {
-        name: '黑队得分',
+        name: gameStore.teamLabel('黑队') + '得分',
         type: 'line',
         data: blueScores.length > 0 ? blueScores : [0],
         smooth: true,
@@ -283,7 +284,7 @@ watch(
 );
 
 watch(
-  () => [gameStore.teamScores['红队'], gameStore.teamScores['黑队']],
+  () => [gameStore.teamScores['红队'], gameStore.teamScores['黑队'], gameStore.teamLabel('红队'), gameStore.teamLabel('黑队')],
   () => {
     updateChart();
   }
@@ -291,9 +292,12 @@ watch(
 
 onMounted(() => {
   initChart();
+  resizeObserver = new ResizeObserver(() => chartInstance?.resize());
+  resizeObserver.observe(chartContainer.value);
 });
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
   if (chartInstance) {
     chartInstance.dispose();
   }
@@ -336,4 +340,3 @@ onBeforeUnmount(() => {
   height: 500px;
 }
 </style>
-

@@ -3,7 +3,7 @@
     <template #header>
       <div class="section-title">
         <h3>
-          {{ team }} 
+          {{ gameStore.teamLabel(team) }}
           <el-tag :type="color === 'red' ? 'danger' : 'primary'" size="large" class="score-tag">
             {{ teamScore }}
           </el-tag> 
@@ -210,7 +210,7 @@ const toggleTeam = () => {
 
 // 更新得分
 const updateScore = async (player, points) => {
-  const message = `${player.team} ${player.number}号${player.name} ${points > 0 ? `得分 +${points}` : `得分 -1`}`;
+  const message = `${gameStore.teamLabel(player.team)} ${player.number}号${player.name} ${points > 0 ? `得分 +${points}` : `得分 -1`}`;
   const result = await gameStore.updateScore(player, points);
   if (result) {
     toastStore.success(message);
@@ -219,7 +219,7 @@ const updateScore = async (player, points) => {
 
 // 添加犯规
 const addFoul = async (player, value) => {
-  const message = `${player.team} ${player.number}号${player.name} 犯规 ${value > 0 ? '+1' : '-1'}`;
+  const message = `${gameStore.teamLabel(player.team)} ${player.number}号${player.name} 犯规 ${value > 0 ? '+1' : '-1'}`;
   const result = await gameStore.addFoul(player, value);
   if (result) {
     toastStore.warning(message);
@@ -346,4 +346,4 @@ h3 {
     font-size: 1.1em;
   }
 }
-</style> 
+</style>

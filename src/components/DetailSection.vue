@@ -45,7 +45,7 @@
             :type="detail.team === '红队' ? 'danger' : 'primary'"
             class="team-tag"
           >
-            {{ detail.team }}
+            {{ gameStore.teamLabel(detail.team) }}
           </el-tag>
         </el-timeline-item>
       </el-timeline>
@@ -176,4 +176,4 @@ const getTimelineColor = (detail) => {
 .detail-items {
   padding: 0 10px;
 }
-</style> 
+</style>

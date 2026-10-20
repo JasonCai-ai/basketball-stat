@@ -4,8 +4,11 @@ import Dashboard from '../views/Dashboard.vue'
 import Configuration from '../views/Configuration.vue'
 import AnnualStats from '../views/AnnualStats.vue'
 import MatchHistory from '../views/MatchHistory.vue'
+import CompanyHistory from '../views/CompanyHistory.vue'
 
 const routes = [
+  { path: '/company', name: 'CompanyDashboard', component: Dashboard, props: { company: true }, meta: { requiresAuth: true } },
+  { path: '/company/history', name: 'CompanyHistory', component: CompanyHistory },
   {
     path: '/',
     redirect: '/login'
@@ -51,10 +54,10 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated')
   
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')
+    next({ path: '/login', query: { redirect: to.fullPath } })
   } else {
     next()
   }
 })
 
-export default router 
+export default router

@@ -2,7 +2,9 @@
   <div class="export-buttons">
     <el-button type="primary" @click="exportDB" icon="Download">导出原始数据库</el-button>
     <el-button type="success" @click="exportExcel" icon="Document">导出Excel数据</el-button>
-    <el-button type="info" @click="showHistoryDialog" icon="Upload">导入数据库</el-button>
+    <el-button v-if="!gameStore.isCompany" type="info" @click="showHistoryDialog" icon="Upload">导入数据库</el-button>
+    <el-button v-else type="info" @click="triggerImportDB" icon="Upload">导入公司赛 JSON</el-button>
+    <input ref="fileInput" type="file" accept=".json,application/json" hidden @change="handleFileImport" />
   </div>
 
   <!-- 历史比赛选择对话框 -->
@@ -31,9 +33,11 @@ import { useToastStore } from '../stores/toastStore';
 import { formatTime, formatLocalTime, formatGameTime } from '../utils/formatters';
 import { Download, Document, Upload } from '@element-plus/icons-vue';
 import * as XLSX from 'xlsx';
+import { downloadCompanyMatch } from '../utils/companyMatches';
 
 const gameStore = useGameStore();
 const toastStore = useToastStore();
+const fileInput = ref(null);
 
 // 历史比赛选择器
 const dialogVisible = ref(false);
@@ -115,7 +119,7 @@ const loadHistoryGame = async () => {
     const file = new File([blob], `${game.filename}`, { type: 'application/json' });
     
     // 调用 gameStore 的导入方法
-    await gameStore.importDB(file);
+    if (!await gameStore.importDB(file)) return;
     
     toastStore.success(`已加载 ${selectedYear.value}-${selectedGame.value} 的比赛数据`);
     dialogVisible.value = false;
@@ -135,7 +139,7 @@ const exportExcel = () => {
 
     // 1. 添加球员数据表
     const playerData = gameStore.players.map(p => ({
-      球队: p.team,
+      球队: gameStore.teamLabel(p.team),
       号码: p.number,
       姓名: p.name,
       状态: p.isPlaying ? (gameStore.isGameRunning ? '上场中' : '暂停中') : '已下场',
@@ -151,8 +155,8 @@ const exportExcel = () => {
 
     // 2. 添加比赛统计表
     const gameStats = [
-      { 球队: '红队', 得分: gameStore.teamScores['红队'], 犯规: gameStore.teamFouls['红队'][gameStore.currentPeriod] || 0 },
-      { 球队: '黑队', 得分: gameStore.teamScores['黑队'], 犯规: gameStore.teamFouls['黑队'][gameStore.currentPeriod] || 0 }
+      { 球队: gameStore.teamLabel('红队'), 得分: gameStore.teamScores['红队'], 犯规: gameStore.teamFouls['红队'][gameStore.currentPeriod] || 0 },
+      { 球队: gameStore.teamLabel('黑队'), 得分: gameStore.teamScores['黑队'], 犯规: gameStore.teamFouls['黑队'][gameStore.currentPeriod] || 0 }
     ];
     const statsWs = XLSX.utils.json_to_sheet(gameStats);
     XLSX.utils.book_append_sheet(wb, statsWs, "比赛统计");
@@ -162,7 +166,7 @@ const exportExcel = () => {
       时间: formatLocalTime(d.timestamp),
       节次: d.period,
       比赛时间: formatGameTime(d.gameTime),
-      球队: d.team,
+      球队: gameStore.teamLabel(d.team),
       球员号码: d.number,
       球员姓名: d.player,
       事件类型: gameStore.getEventTypeName(d.type),
@@ -173,8 +177,8 @@ const exportExcel = () => {
     XLSX.utils.book_append_sheet(wb, detailWs, "比赛明细");
 
     // 导出Excel文件
-    const dateStr = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `篮球比赛数据_${dateStr}.xlsx`);
+    const dateStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
+    XLSX.writeFile(wb, `${gameStore.isCompany ? '公司赛' : '篮球比赛'}数据_${dateStr}.xlsx`);
     toastStore.success('Excel导出成功');
   } catch (error) {
     console.error('导出Excel失败:', error);
@@ -188,35 +192,12 @@ const exportDB = async () => {
     // 确保先保存最新数据
     await gameStore.saveData();
 
-    // 打开 IndexedDB（版本号需与 store 保持一致：7）
-    const database = await new Promise((resolve, reject) => {
-      const request = window.indexedDB.open('BasketballStatsDB', 7);
-      request.onerror = (e) => reject(e.target?.error || new Error('数据库打开失败'));
-      request.onupgradeneeded = () => {
-        // 仅为满足 API，不在导出流程中做结构变更
-      };
-      request.onsuccess = (e) => resolve(e.target.result);
-    });
-
-    // 读取两个对象仓库的数据
-    const readAll = (db, storeName) => new Promise((resolve, reject) => {
-      try {
-        const tx = db.transaction([storeName], 'readonly');
-        const store = tx.objectStore(storeName);
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e.target?.error || new Error(`读取 ${storeName} 失败`));
-      } catch (err) {
-        reject(err);
-      }
-    });
-
-    const [gameData, detailData] = await Promise.all([
-      readAll(database, 'gameData'),
-      readAll(database, 'gameDetails')
-    ]);
-
-    const data = { game: gameData, details: detailData };
+    const data = gameStore.snapshot();
+    if (gameStore.isCompany) {
+      downloadCompanyMatch(data);
+      toastStore.success('公司赛 JSON 导出成功');
+      return;
+    }
 
     // 生成并下载文件
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -247,10 +228,12 @@ const handleFileImport = async (event) => {
   
   try {
     const result = await gameStore.importDB(file);
-    toastStore.success('数据库导出成功');
+    if (result) toastStore.success('数据库导入成功');
   } catch (error) {
-    console.error('导出数据库失败:', error);
-    toastStore.error('导出数据库失败: ' + error.message);
+    console.error('导入数据库失败:', error);
+    toastStore.error('导入数据库失败: ' + error.message);
+  } finally {
+    event.target.value = '';
   }
 };
 </script>
@@ -260,6 +243,7 @@ const handleFileImport = async (event) => {
   margin: 20px 0;
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .history-selector {
@@ -267,4 +251,4 @@ const handleFileImport = async (event) => {
   align-items: center;
   margin-bottom: 20px;
 }
-</style> 
+</style>

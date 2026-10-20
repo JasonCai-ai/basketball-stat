@@ -1,10 +1,10 @@
 <template>
-  <div class="substitution-panel">
+  <div class="substitution-panel" :class="{ 'company-match': gameStore.isCompany }">
     <!-- 红队 -->
     <el-card class="sub-panel">
       <template #header>
         <div class="card-header">
-          <el-badge value="红队" type="danger">球员上下场</el-badge>
+          <el-badge :value="gameStore.teamLabel('红队')" type="danger">球员上下场</el-badge>
         </div>
       </template>
       
@@ -23,7 +23,8 @@
               plain
               @click="togglePlayer(player)"
             >
-              <el-badge :value="player.number" class="player-badge">
+              <el-badge :value="player.number" :hidden="gameStore.isCompany" class="player-badge">
+                <span v-if="gameStore.isCompany" class="jersey-number">{{ player.number }}<small>号</small></span>
                 <span class="name">{{ player.name }}</span>
                 <el-icon class="status"><ArrowDown /></el-icon>
               </el-badge>
@@ -42,7 +43,8 @@
               plain
               @click="togglePlayer(player)"
             >
-              <el-badge :value="player.number" class="player-badge">
+              <el-badge :value="player.number" :hidden="gameStore.isCompany" class="player-badge">
+                <span v-if="gameStore.isCompany" class="jersey-number">{{ player.number }}<small>号</small></span>
                 <span class="name">{{ player.name }}</span>
                 <el-icon class="status"><ArrowUp /></el-icon>
               </el-badge>
@@ -56,7 +58,7 @@
     <el-card class="sub-panel">
       <template #header>
         <div class="card-header">
-          <el-badge value="黑队" type="primary">球员上下场</el-badge>
+          <el-badge :value="gameStore.teamLabel('黑队')" type="primary">球员上下场</el-badge>
         </div>
       </template>
       
@@ -75,7 +77,8 @@
               plain
               @click="togglePlayer(player)"
             >
-              <el-badge :value="player.number" class="player-badge">
+              <el-badge :value="player.number" :hidden="gameStore.isCompany" class="player-badge">
+                <span v-if="gameStore.isCompany" class="jersey-number">{{ player.number }}<small>号</small></span>
                 <span class="name">{{ player.name }}</span>
                 <el-icon class="status"><ArrowDown /></el-icon>
               </el-badge>
@@ -94,7 +97,8 @@
               plain
               @click="togglePlayer(player)"
             >
-              <el-badge :value="player.number" class="player-badge">
+              <el-badge :value="player.number" :hidden="gameStore.isCompany" class="player-badge">
+                <span v-if="gameStore.isCompany" class="jersey-number">{{ player.number }}<small>号</small></span>
                 <span class="name">{{ player.name }}</span>
                 <el-icon class="status"><ArrowUp /></el-icon>
               </el-badge>
@@ -124,7 +128,7 @@ const getBenchPlayers = (team) => {
 };
 
 const togglePlayer = async (player) => {
-  const message = `${player.team} ${player.number}号${player.name} ${player.isPlaying ? '下场' : '上场'}`;
+  const message = `${gameStore.teamLabel(player.team)} ${player.number}号${player.name} ${player.isPlaying ? '下场' : '上场'}`;
   const result = await gameStore.togglePlayer(player);
   if (result) {
     toastStore.success(message);
@@ -195,6 +199,23 @@ const togglePlayer = async (player) => {
   align-items: center;
 }
 
+.company-match .player-btn {
+  min-width: 160px;
+}
+
+.jersey-number {
+  min-width: 38px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.jersey-number small {
+  margin-left: 2px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
 .name {
   flex-grow: 1;
   margin: 0 5px;
@@ -214,4 +235,4 @@ const togglePlayer = async (player) => {
     width: 100%;
   }
 }
-</style> 
+</style>

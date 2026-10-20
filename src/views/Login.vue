@@ -2,6 +2,10 @@
   <div class="login-container">
     <div class="login-box">
       <h2>篮球比赛统计系统</h2>
+      <el-radio-group v-model="destination" class="workspace-picker">
+        <el-radio-button value="/dashboard">日常比赛</el-radio-button>
+        <el-radio-button value="/company">公司比赛</el-radio-button>
+      </el-radio-group>
       <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">
         <el-form-item prop="username">
           <el-input 
@@ -25,16 +29,19 @@
           </el-button>
         </el-form-item>
       </el-form>
+      <el-button link type="primary" @click="router.push(destination === '/company' ? '/company/history' : '/match-history')">查看历史比分（免登录）</el-button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
+const destination = ref(route.query.redirect === '/company' ? '/company' : '/dashboard')
 const loginFormRef = ref(null)
 const loading = ref(false)
 
@@ -63,7 +70,7 @@ const handleLogin = () => {
         if (loginForm.username === 'hotshot' && loginForm.password === 'hotshot123456') {
           setTimeout(() => {
             localStorage.setItem('isAuthenticated', 'true')
-            router.push('/dashboard')
+            router.push(destination.value)
             loading.value = false
           }, 800)
         } else {
@@ -113,6 +120,7 @@ h2::before {
 .login-form {
   margin-top: 20px;
 }
+.workspace-picker { display: flex; justify-content: center; }
 
 .login-button {
   width: 100%;
@@ -134,4 +142,4 @@ h2::before {
     margin-bottom: 20px;
   }
 }
-</style> 
+</style>

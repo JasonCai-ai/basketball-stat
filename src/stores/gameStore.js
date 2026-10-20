@@ -5,12 +5,11 @@ import { ElMessageBox } from 'element-plus';
 import { useToastStore } from './toastStore';
 
 // 数据库常量
-const DB_NAME = 'BasketballStatsDB';
 const DB_VERSION = 7;
 const STORE_NAME = 'gameData';
 const DETAIL_STORE_NAME = 'gameDetails';
 
-export const useGameStore = defineStore('game', () => {
+const createGameStore = (storeId, databaseName, company = false) => defineStore(storeId, () => {
   // 导入toast store
   const toastStore = useToastStore();
   
@@ -31,6 +30,12 @@ export const useGameStore = defineStore('game', () => {
   const db = ref(null);
   const isDbReady = ref(false);
   const gameStatus = ref('比赛未开始');
+  const defaultTeamNames = () => ({ '红队': company ? '主队' : '红队', '黑队': company ? '客队' : '黑队' });
+  const teamNames = ref(defaultTeamNames());
+  const matchId = ref('');
+  const isTest = ref(false);
+  const isCompany = company;
+  const teamLabel = (side) => teamNames.value[side] || side;
 
   // 预设球员池
   const presetPlayers = ref([
@@ -67,8 +72,9 @@ export const useGameStore = defineStore('game', () => {
 
   // 初始化数据库
   async function initDB() {
+    if (isDbReady.value) return db.value;
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      const request = indexedDB.open(databaseName, DB_VERSION);
 
       request.onerror = (event) => {
         console.error('数据库打开失败:', event.target.error);
@@ -119,7 +125,11 @@ export const useGameStore = defineStore('game', () => {
       teamScores: JSON.parse(JSON.stringify(teamScores.value)),
       teamFouls: JSON.parse(JSON.stringify(teamFouls.value)),
       lastUpdateTime: isGameRunning.value ? Date.now() : null,
-      gameStartTime: gameStartTime.value
+      gameStartTime: gameStartTime.value,
+      teamNames: JSON.parse(JSON.stringify(teamNames.value)),
+      matchId: matchId.value,
+      isTest: isTest.value,
+      workspace: company ? 'company' : 'daily'
     };
 
     return new Promise((resolve, reject) => {
@@ -184,6 +194,10 @@ export const useGameStore = defineStore('game', () => {
           teamFouls.value = data.teamFouls || { '红队': { 1: 0 }, '黑队': { 1: 0 } };
           lastUpdateTime.value = data.lastUpdateTime || Date.now();
           gameStartTime.value = data.gameStartTime || 0;
+          teamNames.value = data.teamNames || defaultTeamNames();
+          matchId.value = data.matchId || '';
+          isTest.value = data.isTest === true;
+          gameStatus.value = gameStartTime.value ? '比赛已暂停' : '比赛未开始';
 
           if (data.isGameRunning && data.lastUpdateTime) {
             const timeDiff = Math.floor((Date.now() - data.lastUpdateTime) / 1000);
@@ -211,7 +225,7 @@ export const useGameStore = defineStore('game', () => {
   async function clearData() {
     try {
       const confirmed = await ElMessageBox.confirm(
-        '确定要清除所有数据吗？此操作不可撤销！', 
+        company ? '确定清除当前公司比赛吗？请先归档或导出。已归档的历史记录会保留。' : '确定要清除所有数据吗？此操作不可撤销！',
         '警告', 
         {
           confirmButtonText: '确定',
@@ -228,7 +242,7 @@ export const useGameStore = defineStore('game', () => {
         const gameStore = transaction.objectStore(STORE_NAME);
         const detailStore = transaction.objectStore(DETAIL_STORE_NAME);
 
-        const gameRequest = gameStore.clear();
+        const gameRequest = company ? gameStore.delete('currentGame') : gameStore.clear();
         const detailRequest = detailStore.clear();
 
         transaction.oncomplete = () => {
@@ -239,6 +253,9 @@ export const useGameStore = defineStore('game', () => {
           teamFouls.value = { '红队': { 1: 0 }, '黑队': { 1: 0 } };
           gameDetails.value = [];
           gameStartTime.value = 0;
+          teamNames.value = defaultTeamNames();
+          matchId.value = '';
+          isTest.value = false;
 
           if (gameTimer.value) {
             clearInterval(gameTimer.value);
@@ -246,8 +263,8 @@ export const useGameStore = defineStore('game', () => {
           }
 
           gameStatus.value = '比赛未开始';
-          toastStore.success('所有数据已清除');
-          resolve();
+          toastStore.success(company ? '当前公司比赛已清除' : '所有数据已清除');
+          resolve(true);
         };
 
         transaction.onerror = (event) => reject(event.target.error);
@@ -268,12 +285,15 @@ export const useGameStore = defineStore('game', () => {
         fileReader.onload = async (e) => {
           try {
             const data = JSON.parse(e.target.result);
+            if (!Array.isArray(data.game) || !Array.isArray(data.game[0]?.players) || !Array.isArray(data.details)) throw new Error('比赛文件格式不正确');
+            if ((data.game[0].workspace === 'company') !== company) throw new Error('请选择当前比赛空间的文件');
+            if (company && (!data.game[0].matchId || !data.game[0].teamNames?.['红队'] || !data.game[0].teamNames?.['黑队'])) throw new Error('公司赛文件缺少比赛 ID 或队名');
             // 检查是否需要重新计算
             const hasScoreRecords = data.details?.some(d => d.type === 'score');
             const hasPlusMinusData = data.game?.[0]?.players?.some(p => p.plusMinus !== undefined && p.plusMinus !== 0);
 
             // 清空现有数据
-            await clearData();
+            if (!await clearData()) { resolve(null); return; }
 
             try {
               // 保存原始数据
@@ -289,8 +309,8 @@ export const useGameStore = defineStore('game', () => {
 
               // 保存基础数据 - convert to plain JS objects
               const gameData = {
-                id: 'currentGame',
                 ...data.game?.[0],
+                id: 'currentGame',
                 players: JSON.parse(JSON.stringify(importedPlayers))
               };
               gameStore.put(gameData);
@@ -339,6 +359,10 @@ export const useGameStore = defineStore('game', () => {
   // 开始比赛
   async function startGame() {
     if (isGameRunning.value) return;
+    if (company && !matchId.value) {
+      toastStore.warning('请先选择对战球队并载入名单');
+      return;
+    }
 
     if (gameTimer.value) clearInterval(gameTimer.value);
 
@@ -411,7 +435,7 @@ export const useGameStore = defineStore('game', () => {
 
   // 添加球员
   async function addPlayer(name, number, team) {
-    if (!name || !number) {
+    if (!name || number === '' || number == null) {
       return { success: false, message: '请输入姓名和号码！' };
     }
 
@@ -601,7 +625,7 @@ export const useGameStore = defineStore('game', () => {
 
   // 添加明细记录
   function addDetailRecord(type, player, value = null) {
-    const now = Date.now();
+    const now = Math.max(Date.now(), (gameDetails.value.at(-1)?.timestamp || 0) + 1);
     const gameTimeCalc = isGameRunning.value ? Math.floor((now - gameStartTime.value) / 1000) : 0;
 
     // Ensure we're working with plain JS properties, not reactive objects
@@ -770,7 +794,57 @@ export const useGameStore = defineStore('game', () => {
     return typeNames[type] || type;
   }
 
+  function snapshot() {
+    return JSON.parse(JSON.stringify({
+      game: [{ id: 'currentGame', players: players.value, isGameRunning: isGameRunning.value,
+        lastUpdateTime: isGameRunning.value ? Date.now() : null,
+        currentPeriod: currentPeriod.value, teamScores: teamScores.value, teamFouls: teamFouls.value,
+        gameStartTime: gameStartTime.value, teamNames: teamNames.value, matchId: matchId.value, isTest: isTest.value,
+        workspace: company ? 'company' : 'daily' }],
+      details: gameDetails.value
+    }));
+  }
+
+  async function listArchives() {
+    await initDB();
+    return new Promise((resolve, reject) => {
+      const request = db.value.transaction(STORE_NAME).objectStore(STORE_NAME).getAll();
+      request.onsuccess = () => resolve(request.result.filter(item => item.id.startsWith('archive:')));
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function archiveMatch() {
+    if (!company || !matchId.value || !gameStartTime.value) throw new Error('请先开始并记录比赛');
+    await pauseGame();
+    await saveData();
+    const data = snapshot();
+    const archive = { id: `archive:${matchId.value}`, savedAt: Date.now(), data };
+    await new Promise((resolve, reject) => {
+      const tx = db.value.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put(archive);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    return archive;
+  }
+
+  async function setupCompanyMatch(home, away) {
+    if (!company || !home || !away || home.id === away.id) throw new Error('请选择两支不同的球队');
+    await initDB();
+    if (players.value.length && !await clearData()) return false;
+    teamNames.value = { '红队': home.name, '黑队': away.name };
+    matchId.value = crypto.randomUUID();
+    players.value = [home, away].flatMap((team, index) => team.players.map(player => ({
+      name: player.name, number: player.number, team: index === 0 ? '红队' : '黑队',
+      isPlaying: false, currentTime: 0, totalTime: 0, score: 0, fouls: 0, plusMinus: 0
+    })));
+    await saveData();
+    return true;
+  }
+
   return {
+    isCompany, isTest, teamNames, teamLabel, matchId, snapshot, setupCompanyMatch, archiveMatch, listArchives,
     // 状态
     players,
     isGameRunning,
@@ -822,3 +896,9 @@ export const useGameStore = defineStore('game', () => {
     getEventTypeName,
   };
 });
+
+export const useDailyGameStore = createGameStore('game', 'BasketballStatsDB');
+export const useCompanyGameStore = createGameStore('companyGame', 'CompanyBasketballStatsDB', true);
+export function useGameStore() {
+  return inject('activeGameStore', null) || useDailyGameStore();
+}
