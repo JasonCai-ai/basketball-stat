@@ -37,7 +37,10 @@ const store = useGameStore();
 const homeId = ref(teams.find(t => t.name === store.teamLabel('红队'))?.id || '');
 const awayId = ref(teams.find(t => t.name === store.teamLabel('黑队'))?.id || '');
 const busy = ref(false);
-const previews = computed(() => [homeId.value, awayId.value].map(id => teams.find(t => t.id === id)));
+const previews = computed(() => [homeId.value, awayId.value].map(id => {
+  const team = teams.find(t => t.id === id);
+  return team ? { ...team, players: [...team.players].sort((a, b) => Number(a.number) - Number(b.number)) } : undefined;
+}));
 watch(() => store.matchId, () => {
   homeId.value = teams.find(t => t.name === store.teamLabel('红队'))?.id || '';
   awayId.value = teams.find(t => t.name === store.teamLabel('黑队'))?.id || '';

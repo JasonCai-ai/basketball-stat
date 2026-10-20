@@ -118,13 +118,16 @@ import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 
 const gameStore = useGameStore();
 const toastStore = useToastStore();
+const selectionPlayers = computed(() => gameStore.isCompany
+  ? [...gameStore.players].sort((a, b) => Number(a.number) - Number(b.number))
+  : gameStore.players);
 
 const getActivePlayers = (team) => {
-  return gameStore.players.filter(p => p.team === team && p.isPlaying);
+  return selectionPlayers.value.filter(p => p.team === team && p.isPlaying);
 };
 
 const getBenchPlayers = (team) => {
-  return gameStore.players.filter(p => p.team === team && !p.isPlaying);
+  return selectionPlayers.value.filter(p => p.team === team && !p.isPlaying);
 };
 
 const togglePlayer = async (player) => {
