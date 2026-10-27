@@ -65,13 +65,18 @@ npm run build
 
 公司赛单独使用 `public/data/company/{年份}/`，与日常比赛的年度数据目录分开。
 
-将导出的 `company_basketball_日期_比赛ID.json` 放入对应年份目录，并在该目录的 `matches.json` 数组中添加文件名，例如：
+将导出的 `company_basketball_日期_比赛ID.json` 放入对应年份目录，并在该目录的 `matches.json` 的 `files` 数组中添加文件名，例如：
 
 ```json
-["company_basketball_2026-10-20_比赛ID.json"]
+{
+  "files": ["company_basketball_2026-10-27_比赛ID.json"],
+  "removedMatchIds": []
+}
 ```
 
 部署后，所有设备可从公司赛历史入口查看公开记录；未发布前仅当前浏览器可见。本机与公开目录存在同一比赛 ID 时，优先显示本机修正版。报名源文件中的部门、尺码和对接人未导入网站。
 
-测试比赛在 JSON 的 `game[0]` 中设置 `isTest: true`，历史卡片和详情会显示“测试赛”，导出备份也保留此标记。2026-10-20 爱康国兵对 AI 说稳了队（51:42）为功能测试赛。
+测试比赛在 JSON 的 `game[0]` 中设置 `isTest: true`，历史卡片和详情会显示“测试赛”，导出备份也保留此标记。
+
+移除已发布记录时，删除对应 JSON 和 `files` 中的文件名，并把其比赛 ID 加入 `removedMatchIds`，避免旧的本机归档再次出现在历史列表。旧版只含文件名数组的目录仍可读取。
 

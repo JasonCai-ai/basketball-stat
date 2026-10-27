@@ -61,8 +61,12 @@ async function load() {
   try {
     const response = await fetch(companyDataUrl(year.value), { cache: 'no-store' });
     if (!response.ok && response.status !== 404) throw new Error('比赛目录加载失败');
-    const files = response.status === 404 ? [] : await response.json();
-    if (!Array.isArray(files)) throw new Error('比赛目录格式不正确');
+    const manifest = response.status === 404 ? [] : await response.json();
+    const files = Array.isArray(manifest) ? manifest : manifest?.files;
+    const removedMatchIds = Array.isArray(manifest) ? [] : (manifest?.removedMatchIds || []);
+    if (!Array.isArray(files) || !Array.isArray(removedMatchIds) || removedMatchIds.some(id => typeof id !== 'string')) throw new Error('比赛目录格式不正确');
+    const removed = new Set(removedMatchIds);
+    for (const id of removed) records.delete(id);
     const results = await Promise.allSettled(files.map(async file => {
       if (typeof file !== 'string' || !/^[\w.-]+\.json$/.test(file)) throw new Error('比赛文件名不正确');
       const result = await fetch(companyDataUrl(year.value, file), { cache: 'no-store' });
@@ -72,6 +76,7 @@ async function load() {
     for (const result of results) {
       if (result.status === 'fulfilled') {
         const match = result.value;
+        if (removed.has(match.matchId)) continue;
         // 本机可能保留赛后修正，优先显示本机版本。
         const local = records.get(match.matchId);
         if (local) {
