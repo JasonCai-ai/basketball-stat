@@ -20,7 +20,7 @@
           "team": "红队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 2011.0159999999998,
+          "totalTime": 2007.914,
           "score": 2,
           "fouls": 1,
           "plusMinus": 13
@@ -31,7 +31,7 @@
           "team": "红队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 1733.0110000000036,
+          "totalTime": 1092.825,
           "score": 8,
           "fouls": 1,
           "plusMinus": 11
@@ -41,8 +41,8 @@
           "number": "8",
           "team": "红队",
           "isPlaying": true,
-          "currentTime": 586.9969999999997,
-          "totalTime": 1686.0070000000005,
+          "currentTime": 586.997,
+          "totalTime": 1047.566,
           "score": 4,
           "fouls": 1,
           "plusMinus": 15
@@ -119,7 +119,7 @@
           "team": "红队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 1654.0030000000027,
+          "totalTime": 1004.916,
           "score": 6,
           "fouls": 0,
           "plusMinus": 8
@@ -129,8 +129,8 @@
           "number": "32",
           "team": "红队",
           "isPlaying": true,
-          "currentTime": 2281.0060000000008,
-          "totalTime": 0,
+          "currentTime": 1631.919,
+          "totalTime": 0.0,
           "score": 2,
           "fouls": 1,
           "plusMinus": 7
@@ -141,7 +141,7 @@
           "team": "红队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 1851.0099999999998,
+          "totalTime": 1201.923,
           "score": 8,
           "fouls": 0,
           "plusMinus": 4
@@ -206,8 +206,8 @@
           "number": "6",
           "team": "黑队",
           "isPlaying": true,
-          "currentTime": 437.99600000000015,
-          "totalTime": 848.9930000000003,
+          "currentTime": 437.996,
+          "totalTime": 199.906,
           "score": 0,
           "fouls": 0,
           "plusMinus": -3
@@ -240,7 +240,7 @@
           "team": "黑队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 2610.014,
+          "totalTime": 1960.927,
           "score": 2,
           "fouls": 3,
           "plusMinus": -12
@@ -306,7 +306,7 @@
           "team": "黑队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 2954.016000000005,
+          "totalTime": 2304.929,
           "score": 13,
           "fouls": 1,
           "plusMinus": -19
@@ -328,7 +328,7 @@
           "team": "黑队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 2954.016000000005,
+          "totalTime": 2304.929,
           "score": 3,
           "fouls": 2,
           "plusMinus": -19
@@ -350,7 +350,7 @@
           "team": "黑队",
           "isPlaying": false,
           "currentTime": 0,
-          "totalTime": 1435.0100000000025,
+          "totalTime": 785.923,
           "score": 0,
           "fouls": 0,
           "plusMinus": -7
@@ -384,7 +384,108 @@
       },
       "matchId": "93bf5486-d507-45ad-8ae8-205717922d5d",
       "isTest": false,
-      "workspace": "company"
+      "workspace": "company",
+      "revision": 1,
+      "timingCorrections": [
+        {
+          "type": "halftime",
+          "startTimestamp": 1793101842399,
+          "endTimestamp": 1793102491486,
+          "startBasis": "用户确认第二节最后一次得分为第二节结束：王靖2分",
+          "endBasis": "采用切换第三节的记录时刻作为恢复计时点",
+          "originalSha256": "200dd262083763aee03cc691cd6003d845c48afd5877bc1370530c0e93cbf126",
+          "playerDeductions": [
+            {
+              "team": "红队",
+              "number": "5",
+              "name": "陈爱文",
+              "deductedSeconds": 3.102,
+              "beforeSeconds": 2011.016,
+              "afterSeconds": 2007.914
+            },
+            {
+              "team": "红队",
+              "number": "7",
+              "name": "陈日康",
+              "deductedSeconds": 640.186,
+              "beforeSeconds": 1733.011,
+              "afterSeconds": 1092.825
+            },
+            {
+              "team": "红队",
+              "number": "8",
+              "name": "蔡庆敏",
+              "deductedSeconds": 638.441,
+              "beforeSeconds": 2273.004,
+              "afterSeconds": 1634.563
+            },
+            {
+              "team": "红队",
+              "number": "30",
+              "name": "邓郁涛",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 1654.003,
+              "afterSeconds": 1004.916
+            },
+            {
+              "team": "红队",
+              "number": "32",
+              "name": "崔同兵",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 2281.006,
+              "afterSeconds": 1631.919
+            },
+            {
+              "team": "红队",
+              "number": "33",
+              "name": "张屹剑",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 1851.01,
+              "afterSeconds": 1201.923
+            },
+            {
+              "team": "黑队",
+              "number": "6",
+              "name": "眭哲豪",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 1286.989,
+              "afterSeconds": 637.902
+            },
+            {
+              "team": "黑队",
+              "number": "10",
+              "name": "王靖",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 2610.014,
+              "afterSeconds": 1960.927
+            },
+            {
+              "team": "黑队",
+              "number": "19",
+              "name": "胡崇浩",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 2954.016,
+              "afterSeconds": 2304.929
+            },
+            {
+              "team": "黑队",
+              "number": "36",
+              "name": "张伟杰",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 2954.016,
+              "afterSeconds": 2304.929
+            },
+            {
+              "team": "黑队",
+              "number": "99",
+              "name": "梁佳健",
+              "deductedSeconds": 649.087,
+              "beforeSeconds": 1435.01,
+              "afterSeconds": 785.923
+            }
+          ]
+        }
+      ]
     }
   ],
   "details": [

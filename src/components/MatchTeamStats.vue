@@ -24,7 +24,10 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="playMinutes" label="时长(分)" width="90" align="center" sortable />
+      <el-table-column v-if="showExactTime" prop="playTime" label="上场(分:秒)" width="110" align="center" sortable>
+        <template #default="{ row }">{{ formatTime(row.playTime) }}</template>
+      </el-table-column>
+      <el-table-column v-else prop="playMinutes" label="时长(分)" width="90" align="center" sortable />
       <el-table-column prop="fouls" label="犯规" width="70" align="center" sortable />
       <el-table-column v-if="showPerformance" label="当场表现" width="110" align="center">
         <template #default="{ row }">
@@ -45,12 +48,14 @@
 </template>
 
 <script setup>
+import { formatTime } from '../utils/formatters';
 defineProps({
   title: { type: String, required: true },
   titleClass: { type: String, default: '' },
   players: { type: Array, default: () => [] },
   showNumber: { type: Boolean, default: false },
   showPerformance: { type: Boolean, default: true },
+  showExactTime: { type: Boolean, default: false },
 });
 
 // 获取正负值标签类型

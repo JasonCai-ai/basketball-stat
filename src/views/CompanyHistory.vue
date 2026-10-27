@@ -26,7 +26,8 @@
       <template v-if="selected">
         <el-alert v-if="selected.isTest" title="测试赛：仅用于功能验证，非正式比赛成绩。" type="warning" :closable="false" show-icon />
         <h2 class="detail-score">{{ selected.homeScore }} : {{ selected.awayScore }}</h2>
-        <MatchTeamStats v-for="(side, index) in ['红队', '黑队']" :key="side" :title="index === 0 ? selected.home : selected.away" :title-class="index === 0 ? 'red-title' : 'black-title'" :players="playersFor(side)" show-number :show-performance="false" />
+        <el-alert v-if="selected.data.game[0].timingCorrections?.length" title="上场时间已扣除中场休息（第二节末次得分至第三节切换）。" type="info" :closable="false" />
+        <MatchTeamStats v-for="(side, index) in ['红队', '黑队']" :key="side" :title="index === 0 ? selected.home : selected.away" :title-class="index === 0 ? 'red-title' : 'black-title'" :players="playersFor(side)" show-number show-exact-time :show-performance="false" />
       </template>
     </el-dialog>
   </main>
@@ -79,7 +80,7 @@ async function load() {
         if (removed.has(match.matchId)) continue;
         // 本机可能保留赛后修正，优先显示本机版本。
         const local = records.get(match.matchId);
-        if (local) {
+        if (local && (local.data.game[0].revision || 0) >= (match.data.game[0].revision || 0)) {
           local.isTest = local.isTest || match.isTest;
           local.data.game[0].isTest = local.isTest;
         } else {

@@ -29,6 +29,7 @@
       当前节次：{{ gameStore.currentPeriod }}
     </el-tag>
   </div>
+  <p v-if="gameStore.isCompany" class="clock-hint">上场时间按开始／暂停计时；休息时请暂停。切节会自动暂停，下一节开始时再点“开始比赛”。</p>
 </template>
 
 <script setup>
@@ -52,6 +53,7 @@ const clearData = () => gameStore.clearData();
   flex-wrap: wrap;
   gap: 10px;
 }
+.clock-hint { color: #606266; font-size: 13px; line-height: 1.6; margin: 0 0 15px; }
 
 .period-controls {
   margin: 0 10px;

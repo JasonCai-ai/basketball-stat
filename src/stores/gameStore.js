@@ -34,6 +34,8 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   const teamNames = ref(defaultTeamNames());
   const matchId = ref('');
   const isTest = ref(false);
+  const matchRevision = ref(0);
+  const timingCorrections = ref([]);
   const isCompany = company;
   const teamLabel = (side) => teamNames.value[side] || side;
 
@@ -104,6 +106,7 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   // 保存游戏数据
   async function saveData() {
     if (!isDbReady.value) return;
+    settlePlayerTime();
 
     // Create a plain JS object without reactive wrappers
     const data = {
@@ -124,11 +127,13 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
       currentPeriod: currentPeriod.value,
       teamScores: JSON.parse(JSON.stringify(teamScores.value)),
       teamFouls: JSON.parse(JSON.stringify(teamFouls.value)),
-      lastUpdateTime: isGameRunning.value ? Date.now() : null,
+      lastUpdateTime: isGameRunning.value ? lastUpdateTime.value : null,
       gameStartTime: gameStartTime.value,
       teamNames: JSON.parse(JSON.stringify(teamNames.value)),
       matchId: matchId.value,
       isTest: isTest.value,
+      revision: matchRevision.value,
+      timingCorrections: JSON.parse(JSON.stringify(timingCorrections.value)),
       workspace: company ? 'company' : 'daily'
     };
 
@@ -172,6 +177,10 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   // 加载游戏数据
   async function loadData() {
     if (!isDbReady.value) return;
+    if (gameTimer.value) clearInterval(gameTimer.value);
+    gameTimer.value = null;
+    isGameRunning.value = false;
+    let interruptedAt = null;
 
     return new Promise((resolve, reject) => {
       const transaction = db.value.transaction([STORE_NAME, DETAIL_STORE_NAME], 'readonly');
@@ -197,14 +206,12 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
           teamNames.value = data.teamNames || defaultTeamNames();
           matchId.value = data.matchId || '';
           isTest.value = data.isTest === true;
+          matchRevision.value = data.revision || 0;
+          timingCorrections.value = data.timingCorrections || [];
           gameStatus.value = gameStartTime.value ? '比赛已暂停' : '比赛未开始';
 
-          if (data.isGameRunning && data.lastUpdateTime) {
-            const timeDiff = Math.floor((Date.now() - data.lastUpdateTime) / 1000);
-            players.value.forEach(p => {
-              if (p.isPlaying) p.currentTime += timeDiff;
-            });
-          }
+          // 页面恢复后保持暂停，离线期间不能算作上场时间。
+          if (data.isGameRunning) interruptedAt = data.lastUpdateTime || 0;
         }
       };
 
@@ -213,8 +220,19 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
         gameDetails.value.sort((a, b) => a.timestamp - b.timestamp);
       };
 
-      transaction.oncomplete = () => {
-        resolve();
+      transaction.oncomplete = async () => {
+        try {
+          if (interruptedAt !== null) {
+            const timestamp = Math.max(interruptedAt, (gameDetails.value.at(-1)?.timestamp || 0) + 1);
+            const detail = { timestamp, period: currentPeriod.value, gameTime: 0,
+              type: 'game-pause', team: '', player: '比赛', number: '', value: null,
+              reason: 'page-recovery' };
+            gameDetails.value.push(detail);
+            await saveDetailRecord(detail);
+            await saveData();
+          }
+          resolve();
+        } catch (error) { reject(error); }
       };
 
       transaction.onerror = (event) => reject(event.target.error);
@@ -256,6 +274,8 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
           teamNames.value = defaultTeamNames();
           matchId.value = '';
           isTest.value = false;
+          matchRevision.value = 0;
+          timingCorrections.value = [];
 
           if (gameTimer.value) {
             clearInterval(gameTimer.value);
@@ -356,6 +376,16 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
     }
   }
 
+  // 在状态切换前结算到同一个时刻，避免换人和暂停边界丢失或重复计时。
+  function settlePlayerTime(now = Date.now()) {
+    if (!isGameRunning.value) return;
+    const elapsedSeconds = Math.max(0, (now - lastUpdateTime.value) / 1000);
+    players.value.forEach(player => {
+      if (player.isPlaying) player.currentTime += elapsedSeconds;
+    });
+    lastUpdateTime.value = now;
+  }
+
   // 开始比赛
   async function startGame() {
     if (isGameRunning.value) return;
@@ -372,18 +402,13 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
 
     addDetailRecord('game-start', { team: '', name: '比赛', number: '' });
 
+    let lastSaveTime = Date.now();
     gameTimer.value = setInterval(async () => {
       const now = Date.now();
-      const elapsedSeconds = (now - lastUpdateTime.value) / 1000;
-      lastUpdateTime.value = now;
+      settlePlayerTime(now);
 
-      players.value.forEach(player => {
-        if (player.isPlaying) {
-          player.currentTime += elapsedSeconds;
-        }
-      });
-
-      if (now % 5000 < 100) {
+      if (now - lastSaveTime >= 5000) {
+        lastSaveTime = now;
         await saveData();
       }
     }, 1000);
@@ -396,6 +421,7 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   async function pauseGame() {
     if (!isGameRunning.value) return;
 
+    settlePlayerTime();
     isGameRunning.value = false;
     clearInterval(gameTimer.value);
     gameTimer.value = null;
@@ -409,6 +435,7 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   // 下一节
   async function nextPeriod() {
     if (currentPeriod.value >= 4) return;
+    if (company) await pauseGame();
     currentPeriod.value++;
 
     if (!teamFouls.value['红队'][currentPeriod.value]) teamFouls.value['红队'][currentPeriod.value] = 0;
@@ -425,6 +452,7 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   // 上一节
   async function prevPeriod() {
     if (currentPeriod.value <= 1) return;
+    if (company) await pauseGame();
     currentPeriod.value--;
 
     // 自动切换到当前节数的明细
@@ -546,6 +574,7 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
       return false;
     }
 
+    settlePlayerTime();
     if (player.isPlaying) {
       player.totalTime += player.currentTime;
       player.currentTime = 0;
@@ -795,11 +824,13 @@ const createGameStore = (storeId, databaseName, company = false) => defineStore(
   }
 
   function snapshot() {
+    settlePlayerTime();
     return JSON.parse(JSON.stringify({
       game: [{ id: 'currentGame', players: players.value, isGameRunning: isGameRunning.value,
-        lastUpdateTime: isGameRunning.value ? Date.now() : null,
+        lastUpdateTime: isGameRunning.value ? lastUpdateTime.value : null,
         currentPeriod: currentPeriod.value, teamScores: teamScores.value, teamFouls: teamFouls.value,
         gameStartTime: gameStartTime.value, teamNames: teamNames.value, matchId: matchId.value, isTest: isTest.value,
+        revision: matchRevision.value, timingCorrections: timingCorrections.value,
         workspace: company ? 'company' : 'daily' }],
       details: gameDetails.value
     }));
