@@ -144,6 +144,7 @@
           title-class="black-title"
           :players="blackPlayers"
         />
+        <ScoreDifferenceChart :game-data="selectedMatch.data" title="比分走势" />
       </div>
 
       <template #footer>
@@ -162,6 +163,7 @@ import { Refresh, Loading, CaretLeft } from '@element-plus/icons-vue';
 import { evaluatePerformances, buildKey } from '../utils/performance';
 import MatchTeamStats from '../components/MatchTeamStats.vue';
 import PlayerAnnualStats from '../components/PlayerAnnualStats.vue';
+import ScoreDifferenceChart from '../components/ScoreDifferenceChart.vue';
 
 const router = useRouter();
 const RefreshIcon = Refresh;
@@ -205,7 +207,7 @@ const matchList = computed(() => {
       const playerCount = players.filter(
         (p) => (p.totalTime || 0) + (p.currentTime || 0) > 0
       ).length;
-      return { date: game.date, redScore, blackScore, winner, playerCount, players };
+      return { date: game.date, redScore, blackScore, winner, playerCount, players, data: game.data };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 });

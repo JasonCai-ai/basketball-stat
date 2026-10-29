@@ -1,36 +1,48 @@
 <template>
   <div class="score-difference-chart">
     <div class="chart-header">
-      <h3>实时比分走势</h3>
+      <h3>{{ title }}</h3>
       <div class="chart-info">
         <span class="max-diff-label">
-          最大分差: {{ maxDifference }}分
+          最大分差: {{ gameData && !hasScoreDetails ? '—' : maxDifference }}分
         </span>
         <span class="current-diff-label">
-          当前分差: {{ currentDifference }}分
+          {{ gameData ? '最终分差' : '当前分差' }}: {{ currentDifference }}分
         </span>
       </div>
     </div>
-    <div ref="chartContainer" class="chart-container"></div>
+    <el-empty v-if="gameData && !hasScoreDetails" description="暂无得分明细，无法绘制比分走势" :image-size="80" />
+    <div v-show="!gameData || hasScoreDetails" ref="chartContainer" class="chart-container"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 import * as echarts from 'echarts';
 
+const props = defineProps({
+  gameData: { type: Object, default: null },
+  title: { type: String, default: '实时比分走势' }
+});
 const gameStore = useGameStore();
+const sourceDetails = computed(() => props.gameData ? (props.gameData.details || []) : gameStore.gameDetails);
+const sourceScores = computed(() => props.gameData ? (props.gameData.game?.[0]?.teamScores || {}) : gameStore.teamScores);
+const sourceTeamNames = computed(() => props.gameData ? (props.gameData.game?.[0]?.teamNames || {}) : gameStore.teamNames);
+const teamLabel = side => sourceTeamNames.value[side] || side;
+const hasScoreDetails = computed(() => sourceDetails.value.some(detail => detail.type === 'score'));
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[character]);
 const chartContainer = ref(null);
 let chartInstance = null;
 let resizeObserver = null;
 const maxDifference = ref(0);
-const currentDifference = ref(0);
-let currentScorePlayers = []; // 存储当前得分球员信息
+const currentDifference = computed(() => Math.abs((sourceScores.value['红队'] || 0) - (sourceScores.value['黑队'] || 0)));
 
 const calculateScoreData = () => {
   // 从 gameDetails 中提取得分事件
-  const scoreEvents = gameStore.gameDetails
+  const scoreEvents = sourceDetails.value
     .filter(d => d.type === 'score')
     .sort((a, b) => a.timestamp - b.timestamp);
 
@@ -40,6 +52,7 @@ const calculateScoreData = () => {
   const scorePlayers = []; // 存储每个时间点的得分球员
   let redScore = 0;
   let blueScore = 0;
+  let maxDiff = 0;
 
   // 遍历所有得分事件，分别累计两队得分
   scoreEvents.forEach(event => {
@@ -49,7 +62,7 @@ const calculateScoreData = () => {
       blueScore += event.value;
     }
 
-    const timestamp = new Date(event.timestamp).toLocaleTimeString();
+    const timestamp = new Date(event.timestamp).toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
     
     timeData.push(timestamp);
     redScores.push(redScore);
@@ -63,18 +76,17 @@ const calculateScoreData = () => {
 
     // 更新最大分差
     const diff = Math.abs(redScore - blueScore);
-    if (diff > maxDifference.value) {
-      maxDifference.value = diff;
-    }
+    maxDiff = Math.max(maxDiff, diff);
   });
+  maxDifference.value = maxDiff;
 
   return { timeData, redScores, blueScores, scorePlayers };
 };
 
 const initChart = () => {
-  if (!chartContainer.value) return;
+  if (!chartContainer.value || chartContainer.value.clientWidth === 0) return;
 
-  chartInstance = echarts.init(chartContainer.value);
+  chartInstance = chartInstance || echarts.init(chartContainer.value);
   updateChart();
 };
 
@@ -82,11 +94,6 @@ const updateChart = () => {
   if (!chartInstance) return;
 
   const { timeData, redScores, blueScores, scorePlayers } = calculateScoreData();
-  const currentRedScore = gameStore.teamScores['红队'] || 0;
-  const currentBlueScore = gameStore.teamScores['黑队'] || 0;
-  
-  currentDifference.value = Math.abs(currentRedScore - currentBlueScore);
-
   // 找出最大分差的点
   let maxDiffIndex = 0;
   let maxDiff = 0;
@@ -138,7 +145,8 @@ const updateChart = () => {
     tooltip: {
       trigger: 'axis',
       formatter: function(params) {
-        let result = params[0].axisValue + '<br/>';
+        if (!params.length) return '';
+        let result = escapeHtml(params[0].axisValue) + '<br/>';
         
         // 获取当前时间点的索引
         const dataIndex = params[0].dataIndex;
@@ -146,11 +154,12 @@ const updateChart = () => {
         // 如果有得分球员信息，显示
         if (scorePlayers && scorePlayers[dataIndex]) {
           const playerInfo = scorePlayers[dataIndex];
-          result += `<span style="font-weight: bold; color: ${playerInfo.team === '红队' ? '#ef4444' : '#3b82f6'};">${gameStore.teamLabel(playerInfo.team)} ${playerInfo.player}(${playerInfo.number}号) +${playerInfo.points}分</span><br/>`;
+          const points = `${playerInfo.points >= 0 ? '+' : ''}${playerInfo.points}`;
+          result += `<span style="font-weight: bold; color: ${playerInfo.team === '红队' ? '#ef4444' : '#3b82f6'};">${escapeHtml(teamLabel(playerInfo.team))} ${escapeHtml(playerInfo.player)}(${escapeHtml(playerInfo.number)}号) ${escapeHtml(points)}分</span><br/>`;
         }
         
         params.forEach(param => {
-          result += `${param.marker}${param.seriesName}: ${param.value}分<br/>`;
+          result += `${param.marker}${escapeHtml(param.seriesName)}: ${escapeHtml(param.value)}分<br/>`;
         });
         return result;
       }
@@ -181,7 +190,7 @@ const updateChart = () => {
     },
     series: [
       {
-        name: gameStore.teamLabel('红队') + '得分',
+        name: teamLabel('红队') + '得分',
         type: 'line',
         data: redScores.length > 0 ? redScores : [0],
         smooth: true,
@@ -233,7 +242,7 @@ const updateChart = () => {
         } : null
       },
       {
-        name: gameStore.teamLabel('黑队') + '得分',
+        name: teamLabel('黑队') + '得分',
         type: 'line',
         data: blueScores.length > 0 ? blueScores : [0],
         smooth: true,
@@ -272,27 +281,23 @@ const updateChart = () => {
     }
   };
 
-  chartInstance.setOption(option);
+  chartInstance.setOption(option, { notMerge: true });
 };
 
 watch(
-  () => gameStore.gameDetails.length,
+  () => [sourceDetails.value, sourceScores.value, sourceTeamNames.value],
   () => {
     updateChart();
   },
-  { deep: true }
-);
-
-watch(
-  () => [gameStore.teamScores['红队'], gameStore.teamScores['黑队'], gameStore.teamLabel('红队'), gameStore.teamLabel('黑队')],
-  () => {
-    updateChart();
-  }
+  { deep: true, flush: 'post' }
 );
 
 onMounted(() => {
   initChart();
-  resizeObserver = new ResizeObserver(() => chartInstance?.resize());
+  resizeObserver = new ResizeObserver(() => {
+    if (!chartInstance) initChart();
+    chartInstance?.resize();
+  });
   resizeObserver.observe(chartContainer.value);
 });
 
@@ -338,5 +343,10 @@ onBeforeUnmount(() => {
 .chart-container {
   width: 100%;
   height: 500px;
+}
+
+@media (max-width: 600px) {
+  .score-difference-chart { padding: 12px; }
+  .chart-container { height: 340px; }
 }
 </style>

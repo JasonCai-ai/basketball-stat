@@ -28,6 +28,7 @@
         <h2 class="detail-score">{{ selected.homeScore }} : {{ selected.awayScore }}</h2>
         <el-alert v-if="selected.data.game[0].timingCorrections?.length" title="上场时间已扣除中场休息（第二节末次得分至第三节切换）。" type="info" :closable="false" />
         <MatchTeamStats v-for="(side, index) in ['红队', '黑队']" :key="side" :title="index === 0 ? selected.home : selected.away" :title-class="index === 0 ? 'red-title' : 'black-title'" :players="playersFor(side)" show-number show-exact-time :show-performance="false" />
+        <ScoreDifferenceChart :game-data="selected.data" title="比分走势" />
       </template>
     </el-dialog>
   </main>
@@ -39,6 +40,7 @@ import { useRouter } from 'vue-router';
 import { useCompanyGameStore } from '../stores/gameStore';
 import { companyDataUrl, matchSummary, downloadCompanyMatch } from '../utils/companyMatches';
 import MatchTeamStats from '../components/MatchTeamStats.vue';
+import ScoreDifferenceChart from '../components/ScoreDifferenceChart.vue';
 const router = useRouter();
 const store = useCompanyGameStore();
 const currentYear = new Date().getFullYear();
