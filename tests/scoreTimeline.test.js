@@ -18,10 +18,12 @@ test('replays substitutions at their event time instead of reusing the final lin
   const timeline = buildScoreTimeline(events);
   assert.deepEqual(names(timeline.scores[1].lineup), { '红队': ['乙', '甲'], '黑队': ['丙'] });
   assert.deepEqual(names(timeline.pauses[0].lineup), { '红队': ['丁', '乙'], '黑队': ['丙'] });
+  assert.deepEqual([timeline.pauses[0].home, timeline.pauses[0].away], [3, 0]);
   assert.equal(timeline.substitutions[3].lineup['红队'].some(player => player.name === '甲'), false);
   assert.equal(timeline.substitutions[4].lineup['红队'][0].name, '丁');
   assert.deepEqual([timeline.scores.at(-1).home, timeline.scores.at(-1).away], [2, 2]);
   assert.equal(timeline.maxDifference, 3);
+  assert.deepEqual([timeline.substitutions.at(-1).home, timeline.substitutions.at(-1).away], [3, 0]);
   assert.equal(JSON.stringify(events), before);
 });
 
@@ -42,13 +44,14 @@ test('handles opening exits, unchanged players, and player removal with incomple
 test('groups colliding markers without losing records, original times, or the last lineup', () => {
   const timeline = buildScoreTimeline([
     event(1000, 'sub-in', '红队', '甲', '2'), event(1005, 'sub-out', '红队', '甲', '2'),
-    event(1010, 'sub-in', '红队', '乙', '10'), event(1900, 'sub-out', '红队', '乙', '10')
+    event(1010, 'sub-in', '红队', '乙', '10'), event(1500, 'score', '红队', '乙', '10', 2), event(1900, 'sub-out', '红队', '乙', '10')
   ]);
   const groups = groupTimelineMarkers(timeline.substitutions, 1000, 2000, 100);
   assert.equal(groups.length, 2);
   assert.deepEqual(groups[0].events.map(event => event.timestamp), [1000, 1005, 1010]);
   assert.equal(groups[0].timestamp, 1010);
   assert.deepEqual(names(groups[0].lineup), { '红队': ['乙'], '黑队': [] });
+  assert.deepEqual([groups[0].home, groups[0].away, groups[1].home, groups[1].away], [0, 0, 2, 0]);
   assert.equal(groupTimelineMarkers(timeline.substitutions, 1000, 2000, 10000).length, 4);
   const adjacent = [1000, 1020, 1021, 1040].map(timestamp => ({ timestamp, event: event(timestamp, 'game-pause'), lineup: {} }));
   const separated = groupTimelineMarkers(adjacent, 1000, 1100, 100);

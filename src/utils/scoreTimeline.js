@@ -53,7 +53,7 @@ export function buildScoreTimeline(details = [], players = [], gameStartTime = 0
       }
     }
     if (event.type === 'game-pause' || isSubstitution(event)) {
-      const marker = { timestamp: event.timestamp, event, lineup: lineup() };
+      const marker = { timestamp: event.timestamp, event, lineup: lineup(), home, away };
       (event.type === 'game-pause' ? pauses : substitutions).push(marker);
     }
   }
@@ -70,7 +70,7 @@ export function groupTimelineMarkers(markers, minTime, maxTime, width) {
     const marker = markers[index];
     let group = groups[0];
     if (!group || group.timestamp - marker.timestamp > interval) {
-      group = { startTime: marker.timestamp, timestamp: marker.timestamp, events: [], lineup: marker.lineup };
+      group = { startTime: marker.timestamp, timestamp: marker.timestamp, events: [], lineup: marker.lineup, home: marker.home, away: marker.away };
       groups.unshift(group);
     }
     group.events.unshift(marker.event);
