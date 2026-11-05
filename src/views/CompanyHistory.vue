@@ -15,7 +15,7 @@
     <div v-loading="loading" class="matches">
       <el-empty v-if="!loading && !matches.length" description="暂无公司赛记录，比赛结束后点击“结束并归档”" />
       <el-card v-for="match in matches" :key="match.id" shadow="hover">
-        <div class="match-meta">{{ match.date }} <el-tag v-if="match.isTest" size="small" type="warning" effect="dark">测试赛</el-tag> <el-tag size="small" :type="match.source === '已发布' ? 'success' : 'info'">{{ match.source }}</el-tag></div>
+        <div class="match-meta">{{ match.date }} <el-tag v-if="match.stage" size="small" :type="match.stage === '半决赛' ? 'warning' : 'primary'">{{ match.stage }}</el-tag> <el-tag v-if="match.isTest" size="small" type="warning" effect="dark">测试赛</el-tag> <el-tag size="small" :type="match.source === '已发布' ? 'success' : 'info'">{{ match.source }}</el-tag></div>
         <button class="scoreline" @click="selected = match">
           <span>{{ match.home }}</span><strong>{{ match.homeScore }} : {{ match.awayScore }}</strong><span>{{ match.away }}</span>
         </button>
@@ -25,6 +25,7 @@
     <el-dialog :model-value="!!selected" :title="selected ? `${selected.home} VS ${selected.away}${selected.isTest ? '（测试赛）' : ''}` : ''" width="94%" top="4vh" @close="selected = null">
       <template v-if="selected">
         <el-alert v-if="selected.isTest" title="测试赛：仅用于功能验证，非正式比赛成绩。" type="warning" :closable="false" show-icon />
+        <div v-if="selected.stage" class="detail-stage"><el-tag :type="selected.stage === '半决赛' ? 'warning' : 'primary'">{{ selected.stage }}</el-tag></div>
         <h2 class="detail-score">{{ selected.homeScore }} : {{ selected.awayScore }}</h2>
         <el-alert v-if="selected.data.game[0].timingCorrections?.length" title="上场时间已扣除中场休息（第二节末次得分至第三节切换）。" type="info" :closable="false" />
         <MatchTeamStats v-for="(side, index) in ['红队', '黑队']" :key="side" :title="index === 0 ? selected.home : selected.away" :title-class="index === 0 ? 'red-title' : 'black-title'" :players="playersFor(side)" show-number show-exact-time :show-performance="false" />
@@ -55,6 +56,7 @@ async function load() {
   errorMessage.value = '';
   selected.value = null;
   const records = new Map();
+  let matchStages = {};
   try {
     for (const archive of await store.listArchives()) {
       const summary = matchSummary({ ...archive, source: '本机归档' });
@@ -68,6 +70,9 @@ async function load() {
     const files = Array.isArray(manifest) ? manifest : manifest?.files;
     const removedMatchIds = Array.isArray(manifest) ? [] : (manifest?.removedMatchIds || []);
     if (!Array.isArray(files) || !Array.isArray(removedMatchIds) || removedMatchIds.some(id => typeof id !== 'string')) throw new Error('比赛目录格式不正确');
+    const stages = Array.isArray(manifest) ? {} : (manifest?.matchStages ?? {});
+    if (!stages || typeof stages !== 'object' || Array.isArray(stages) || Object.values(stages).some(stage => typeof stage !== 'string' || !stage.trim())) throw new Error('比赛阶段格式不正确');
+    matchStages = stages;
     const removed = new Set(removedMatchIds);
     for (const id of removed) records.delete(id);
     const results = await Promise.allSettled(files.map(async file => {
@@ -91,7 +96,9 @@ async function load() {
       } else { errorMessage.value = '部分已发布记录加载失败，请刷新重试'; }
     }
   } catch (error) { errorMessage.value = `已发布记录加载失败：${error.message}`; }
-  matches.value = [...records.values()].sort((a, b) => (b.data.game[0].gameStartTime || 0) - (a.data.game[0].gameStartTime || 0));
+  // Classify by match ID after merging so a matching local archive gets the same stage.
+  matches.value = [...records.values()].map(match => ({ ...match, stage: Object.hasOwn(matchStages, match.matchId) ? matchStages[match.matchId] : '' }))
+    .sort((a, b) => (b.data.game[0].gameStartTime || 0) - (a.data.game[0].gameStartTime || 0));
   loading.value = false;
 }
 function playersFor(side) {
@@ -115,5 +122,6 @@ p, .match-meta { color: #606266; line-height: 1.7; }
 .scoreline strong { font-size: 30px; white-space: nowrap; }
 .detail-score { display: block; text-align: center; }
 .detail-score::before { content: none; }
+.detail-stage { text-align: center; margin: 8px 0; }
 @media (max-width: 600px) { .company-history { padding: 12px; } .scoreline { gap: 8px; } .scoreline strong { font-size: 24px; } }
 </style>
