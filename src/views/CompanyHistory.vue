@@ -105,7 +105,7 @@ function playersFor(side) {
   return selected.value.players.filter(p => p.team === side).map(p => ({
     ...p, playTime: (p.totalTime || 0) + (p.currentTime || 0),
     playMinutes: Math.round(((p.totalTime || 0) + (p.currentTime || 0)) / 60)
-  })).sort((a, b) => Number(a.number) - Number(b.number));
+  })).sort((a, b) => b.playTime - a.playTime || Number(a.number) - Number(b.number));
 }
 onMounted(load);
 </script>
