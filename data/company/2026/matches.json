@@ -8,7 +8,8 @@
     "company_basketball_2026-11-03_80b59b05-882b-4282-ae00-4d55825a8cc4.json",
     "company_basketball_2026-11-05_9e57c5ee-8a7b-47ea-8f65-eac526e8ef6e.json",
     "company_basketball_2026-11-05_a4bd3af9-8465-494c-ac3f-afb0239ce4de.json",
-    "company_basketball_2026-11-10_3e2e613b-f6ff-4505-b334-f67bb9595914.json"
+    "company_basketball_2026-11-10_3e2e613b-f6ff-4505-b334-f67bb9595914.json",
+    "company_basketball_2026-11-11_e7428340-a019-4ea1-a8a0-f11458bd2f0d.json"
   ],
   "removedMatchIds": [
     "fcde4ddf-a40a-4b42-b934-75cdb9e4dcf8"
@@ -22,6 +23,7 @@
     "9e57c5ee-8a7b-47ea-8f65-eac526e8ef6e": "半决赛",
     "a4bd3af9-8465-494c-ac3f-afb0239ce4de": "半决赛",
     "ff7a1ff9-7b19-4786-9279-b08f00a660ff": "小组赛",
-    "3e2e613b-f6ff-4505-b334-f67bb9595914": "季军赛"
+    "3e2e613b-f6ff-4505-b334-f67bb9595914": "季军赛",
+    "e7428340-a019-4ea1-a8a0-f11458bd2f0d": "决赛"
   }
 }
