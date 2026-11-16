@@ -6,9 +6,9 @@
         <el-tooltip
           effect="dark"
           placement="top"
-          content="技术统计模型（z-score 标准化）+ 历史 Elo 模型加权融合，输出为 sigmoid/Elo 期望胜率"
+          content="技术统计按近期60%、全季40%混合；近期样本不足时更多参考个人全季表现，再结合全季战绩估计胜率。"
         >
-          <el-tag type="info">混合模型 · 年度数据驱动</el-tag>
+          <el-tag type="info">近期与全季混合</el-tag>
         </el-tooltip>
       </div>
     </template>
@@ -129,21 +129,22 @@
 
       <div class="model-breakdown">
         <div class="breakdown-row">
-          <span class="breakdown-label">技术统计模型</span>
+          <span class="breakdown-label">近期与全季产出</span>
           <span>红 {{ result.box.redPct }}% / 黑 {{ result.box.blackPct }}%</span>
         </div>
         <div class="breakdown-row">
-          <span class="breakdown-label">历史 Elo 模型</span>
+          <span class="breakdown-label">战绩模型（Elo＋胜率）</span>
           <span>
             红 {{ result.elo.redPct }}% / 黑 {{ result.elo.blackPct }}%
             <span class="dim">（{{ result.elo.redElo }} vs {{ result.elo.blackElo }}）</span>
           </span>
         </div>
+        <div class="dim">两项强度合并后计算总胜率；分项百分比不直接相加。</div>
       </div>
 
       <div class="sim-section">
         <div class="sim-title">
-          得分模拟
+          得分模拟（独立按历史得分速率估算）
           <span class="dim">（{{ result.sim.target }} 分制 · 最长 {{ result.sim.maxMinutes }} 分钟 · 2000 次蒙特卡洛）</span>
         </div>
 
@@ -217,7 +218,8 @@
 import { ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
-import { combinedWinProbability, simulateMatchup } from '../utils/winPrediction';
+import { simulateMatchup } from '../utils/winPrediction';
+import { predictRatingMatchup } from '../utils/ratingModel.js';
 
 const store = useAnnualStatsStore();
 const playerList = computed(() => store.playerAnnualStats);
@@ -282,7 +284,7 @@ function randomSplit() {
     const redSize = n % 2 === 0 ? baseHalf : (Math.random() < 0.5 ? baseHalf : baseHalf + 1);
     const red = shuffled.slice(0, redSize);
     const black = shuffled.slice(redSize);
-    const { pRed } = combinedWinProbability(red, black, store.leagueStats, store.playerEloRatings);
+    const { pRed } = predictRatingMatchup(store.ratingModel, red.map(p => p.name), black.map(p => p.name));
     candidates.push({ red, black, pRed, diff: Math.abs(pRed - 0.5) });
   }
 
@@ -319,11 +321,10 @@ function predictWinRate() {
   const redStats = playerList.value.filter(p => redTeam.value.includes(p.name));
   const blackStats = playerList.value.filter(p => blackTeam.value.includes(p.name));
 
-  const { pRed, pBlack, breakdown } = combinedWinProbability(
-    redStats,
-    blackStats,
-    store.leagueStats,
-    store.playerEloRatings,
+  const { pRed, pBlack, breakdown } = predictRatingMatchup(
+    store.ratingModel,
+    redStats.map(p => p.name),
+    blackStats.map(p => p.name),
   );
 
   const warnings = [];
@@ -336,10 +337,10 @@ function predictWinRate() {
   }
 
   const factors = [
-    `红队人均得分/分钟：${perMin(redStats, 'pointsPerMin')}（黑队 ${perMin(blackStats, 'pointsPerMin')}）`,
-    `红队人均正负值/分钟：${perMin(redStats, 'plusMinusPerMin')}（黑队 ${perMin(blackStats, 'plusMinusPerMin')}）`,
-    `红队人均犯规/分钟：${perMin(redStats, 'foulsPerMin')}（黑队 ${perMin(blackStats, 'foulsPerMin')}）`,
-    `红队贝叶斯调整胜率：${adjPct(redStats)}%（黑队 ${adjPct(blackStats)}%）`,
+    `红队近期得分/分钟：${perMin(redStats, 'formPointsPerMin')}（黑队 ${perMin(blackStats, 'formPointsPerMin')}）`,
+    `红队近期正负值/分钟：${perMin(redStats, 'formPlusMinusPerMin')}（黑队 ${perMin(blackStats, 'formPlusMinusPerMin')}）`,
+    `红队近期犯规/分钟：${perMin(redStats, 'formFoulsPerMin')}（黑队 ${perMin(blackStats, 'formFoulsPerMin')}）`,
+    `红队全季贝叶斯调整胜率：${adjPct(redStats)}%（黑队 ${adjPct(blackStats)}%）`,
   ];
 
   // 得分模拟

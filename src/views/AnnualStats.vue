@@ -181,7 +181,7 @@
                   <el-tooltip
                     effect="dark"
                     placement="top"
-                    content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、出场分钟置信度。与胜负预测同源。"
+                    :content="`0-100。${RATING_CONFIG.powerCenter} 为参考强度刻度；技术统计基础为近期60%、全季40%。近期最多${RATING_CONFIG.formGames}次出场，样本不足时更多参考个人全季表现。`"
                   >
                     <span>战力值</span>
                   </el-tooltip>
@@ -256,6 +256,7 @@
 </template>
 
 <script setup>
+import { ratingPowerType as getPowerType, RATING_CONFIG } from '../utils/ratingModel.js';
 import { ref, computed, onMounted } from 'vue';
 import WinPredictionPanel from '../components/WinPredictionPanel.vue';
 import { useRouter } from 'vue-router';
@@ -365,14 +366,6 @@ const getPlusMinusType = (value) => {
   return 'info';
 };
 
-// 战力值颜色：70+ 强 / 55-69 偏上 / 45-54 平均 / 30-44 偏下 / <30 弱
-const getPowerType = (value) => {
-  if (value >= 70) return 'danger';   // 红：明显强
-  if (value >= 55) return 'warning';  // 黄：偏上
-  if (value >= 45) return 'success';  // 绿：平均水平
-  if (value >= 30) return 'info';     // 灰蓝：偏下
-  return '';                          // 默认灰
-};
 
 // 格式化秒数为分:秒
 const formatSeconds = (seconds) => {

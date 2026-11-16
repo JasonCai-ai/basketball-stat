@@ -2,12 +2,10 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import {
   computeLeagueStats,
-  computeEloRatings,
   computeRapmRatings,
   rapmExpectedPlusMinus,
-  shrinkWinRate,
-  playerPowerRating,
 } from '../utils/winPrediction';
+import { summarizeRatingHistory, buildRatingModel } from '../utils/ratingModel.js';
 
 export const useAnnualStatsStore = defineStore('annualStats', () => {
   const loading = ref(false);
@@ -123,143 +121,15 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   }
 
   // 球员 RAPM（正则化调整正负值）：基于全季比赛岭回归得出，Map<球员名, rapm>
-  // 仅依赖 gamesData，无循环依赖；供战力值 / 当场表现 / 搭配克制 共用
+  // 仅依赖 gamesData，无循环依赖；供当场表现 / 搭配克制使用，暂不加入战力。
   const playerRapmRatings = computed(() => computeRapmRatings(gamesData.value));
 
   // 球员年度基础统计（不含战力值，作为内部计算源）
   // 单独抽出来：leagueStats 需要它，而带战力值的版本又需要 leagueStats，避免循环依赖
-  const basePlayerAnnualStats = computed(() => {
-    const statsMap = new Map();
-    const sortedGames = [...gamesData.value].sort((a, b) => a.date.localeCompare(b.date));
-
-    sortedGames.forEach((game, index) => {
-      const gameInfo = game.data?.game?.[0] || {};
-      const players = gameInfo.players || [];
-      const teamScores = gameInfo.teamScores || {};
-      
-      if (!players || players.length === 0) {
-        console.warn(`第 ${index + 1} 场比赛没有球员数据`);
-        return;
-      }
-
-      const redScore = teamScores['红队'] || 0;
-      const blackScore = teamScores['黑队'] || 0;
-      const winningTeam = redScore > blackScore ? '红队' : (blackScore > redScore ? '黑队' : null);
-
-      players.forEach(player => {
-        // 计算上场时间判断是否 DNP
-        const playTime = (player.totalTime || 0) + (player.currentTime || 0);
-        const isDNP = playTime === 0;
-        
-        // DNP球员不纳入年度统计
-        if (isDNP) {
-          return;
-        }
-        
-        // 使用姓名作为唯一标识，合并不同号码
-        const key = player.name;
-        
-        if (!statsMap.has(key)) {
-          statsMap.set(key, {
-            name: player.name,
-            numbers: new Set([player.number]), // 收集所有使用过的号码
-            gamesPlayed: 0,
-            totalPoints: 0,
-            totalPlusMinus: 0,
-            totalPlayTime: 0,
-            totalFouls: 0,
-            wins: 0,
-            losses: 0,
-            results: [], // 按时间顺序记录每场胜负（'W'/'L'，平局不记），用于计算当前连胜/连败
-            recentGames: []
-          });
-        }
-
-        const stats = statsMap.get(key);
-        stats.numbers.add(player.number); // 添加号码
-        stats.gamesPlayed += 1;
-        stats.totalPoints += player.score || 0;
-        stats.totalPlusMinus += player.plusMinus || 0;
-        stats.totalPlayTime += playTime;
-        stats.totalFouls += player.fouls || 0;
-        
-        // 计算胜负场
-        if (winningTeam) {
-          if (player.team === winningTeam) {
-            stats.wins += 1;
-            stats.results.push('W');
-          } else {
-            stats.losses += 1;
-            stats.results.push('L');
-          }
-        }
-
-        stats.recentGames.push({
-          points: player.score || 0,
-          plusMinus: player.plusMinus || 0,
-          playTime,
-          fouls: player.fouls || 0,
-        });
-        if (stats.recentGames.length > 5) {
-          stats.recentGames.shift();
-        }
-      });
-    });
-
-    const rapmMap = playerRapmRatings.value;
-    return Array.from(statsMap.values()).map(stats => {
-      const totalMinutes = stats.totalPlayTime / 60;
-      const safeMin = totalMinutes > 0 ? totalMinutes : 0;
-      const decided = stats.wins + stats.losses; // 排除平局
-      const recentGamesCount = stats.recentGames.length;
-      const recentTotals = stats.recentGames.reduce((acc, game) => {
-        acc.points += game.points;
-        acc.plusMinus += game.plusMinus;
-        acc.playTime += game.playTime;
-        acc.fouls += game.fouls;
-        return acc;
-      }, { points: 0, plusMinus: 0, playTime: 0, fouls: 0 });
-      const recentMinutes = recentTotals.playTime / 60;
-      // 当前连胜/连败：从最近一场往前数，同结果连续的场次数
-      // 正数=连胜，负数=连败，0=无已决赛果
-      let streak = 0;
-      if (stats.results.length > 0) {
-        const last = stats.results[stats.results.length - 1];
-        for (let i = stats.results.length - 1; i >= 0 && stats.results[i] === last; i--) {
-          streak += 1;
-        }
-        if (last === 'L') streak = -streak;
-      }
-      return {
-        name: stats.name,
-        number: Array.from(stats.numbers).sort((a, b) => a - b).join(', '),
-        gamesPlayed: stats.gamesPlayed,
-        totalPoints: stats.totalPoints,
-        avgPoints: parseFloat((stats.totalPoints / stats.gamesPlayed).toFixed(1)),
-        avgPlusMinus: parseFloat((stats.totalPlusMinus / stats.gamesPlayed).toFixed(1)),
-        avgPlayTime: Math.round(stats.totalPlayTime / stats.gamesPlayed / 60),
-        totalFouls: stats.totalFouls,
-        avgFouls: parseFloat((stats.totalFouls / stats.gamesPlayed).toFixed(1)),
-        wins: stats.wins,
-        losses: stats.losses,
-        winRate: parseFloat(stats.gamesPlayed > 0 ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) : '0.0'),
-        streak,
-        // 预测专用字段：精确分钟、人均效率、贝叶斯调整胜率
-        totalMinutes,
-        pointsPerMin:     safeMin > 0 ? stats.totalPoints     / safeMin : 0,
-        plusMinusPerMin:  safeMin > 0 ? stats.totalPlusMinus  / safeMin : 0,
-        foulsPerMin:      safeMin > 0 ? stats.totalFouls      / safeMin : 0,
-        adjustedWinRate:  shrinkWinRate(stats.wins, decided),
-        recentGamesCount,
-        recentAvgPoints: recentGamesCount > 0 ? recentTotals.points / recentGamesCount : 0,
-        recentAvgPlusMinus: recentGamesCount > 0 ? recentTotals.plusMinus / recentGamesCount : 0,
-        recentAvgPlayTime: recentGamesCount > 0 ? recentTotals.playTime / recentGamesCount / 60 : 0,
-        recentFoulsPerMin: recentMinutes > 0 ? recentTotals.fouls / recentMinutes : 0,
-        // RAPM：供战力值 z-score 用（联盟分布由 computeLeagueStats 统计）
-        rapm: rapmMap.get(stats.name) ?? 0,
-      };
-    }).sort((a, b) => b.totalPoints - a.totalPoints);
-  });
+  const basePlayerAnnualStats = computed(() => summarizeRatingHistory(gamesData.value).players.map(p => ({
+    ...p,
+    rapm: playerRapmRatings.value.get(p.name) ?? 0,
+  })));
 
   const totalGames = computed(() => gamesData.value.length);
 
@@ -278,18 +148,19 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
   // 预测模型用：联盟级 mean/std，用于 z-score 标准化
   const leagueStats = computed(() => computeLeagueStats(basePlayerAnnualStats.value));
 
-  // 预测模型用：球员 Elo（按时间顺序遍历历史比赛得出）
-  const playerEloRatings = computed(() => computeEloRatings(gamesData.value));
-
-  // 对外暴露的球员年度统计：在基础统计上叠加战力值 (0-100)
-  const playerAnnualStats = computed(() => {
-    const ls = leagueStats.value;
-    const elo = playerEloRatings.value;
-    return basePlayerAnnualStats.value.map(p => ({
-      ...p,
-      powerRating: playerPowerRating(p, ls, elo),
-    }));
-  });
+  // 战力与胜负预测共用候选模型；RAPM 暂不加入战力。
+  const ratingModel = computed(() => buildRatingModel(gamesData.value, {
+    asOf: new Date().toLocaleDateString('sv-SE'),
+  }));
+  const playerEloRatings = computed(() => ratingModel.value.eloRatings);
+  const playerAnnualStats = computed(() => basePlayerAnnualStats.value.map(p => ({
+    ...p,
+    powerRating: ratingModel.value.byName.get(p.name)?.powerRating ?? ratingModel.value.config.powerCenter,
+    powerConfidence: ratingModel.value.byName.get(p.name)?.confidence ?? 0,
+    formPointsPerMin: ratingModel.value.byName.get(p.name)?.formPointsPerMin ?? 0,
+    formPlusMinusPerMin: ratingModel.value.byName.get(p.name)?.formPlusMinusPerMin ?? 0,
+    formFoulsPerMin: ratingModel.value.byName.get(p.name)?.formFoulsPerMin ?? 0,
+  })));
 
   // 获取单个球员的年度历史数据（按日期排列）
   const getPlayerHistory = computed(() => {
@@ -451,5 +322,6 @@ export const useAnnualStatsStore = defineStore('annualStats', () => {
     loadYearData,
     leagueStats,
     playerEloRatings,
+    ratingModel,
   };
 });

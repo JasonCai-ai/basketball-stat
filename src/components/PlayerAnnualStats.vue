@@ -105,7 +105,7 @@
           <el-tooltip
             effect="dark"
             placement="top"
-            content="0-100。50 = 联盟平均；融合技术统计 z-score、Elo、胜率、近期状态与出场置信度。"
+            :content="`0-100。${RATING_CONFIG.powerCenter} 为参考强度刻度；技术统计基础为近期60%、全季40%。近期最多${RATING_CONFIG.formGames}次出场，样本不足时更多参考个人全季表现。`"
           >
             <span>战力值</span>
           </el-tooltip>
@@ -227,6 +227,7 @@
 </template>
 
 <script setup>
+import { ratingPowerType as getPowerType, RATING_CONFIG } from '../utils/ratingModel.js';
 import { ref, computed } from 'vue';
 import { useAnnualStatsStore } from '../stores/annualStatsStore';
 import { Search, InfoFilled } from '@element-plus/icons-vue';
@@ -270,14 +271,6 @@ const getPlusMinusType = (value) => {
   return 'info';
 };
 
-// 战力值颜色：70+ 强 / 55-69 偏上 / 45-54 平均 / 30-44 偏下 / <30 弱
-const getPowerType = (value) => {
-  if (value >= 70) return 'danger';
-  if (value >= 55) return 'warning';
-  if (value >= 45) return 'success';
-  if (value >= 30) return 'info';
-  return '';
-};
 
 // 化学反应：按姓名取该球员的 最夯/最拉 队友与对手（无则返回空对象）
 const EMPTY_CHEM = { bestTeammate: null, worstTeammate: null, bestOpponent: null, worstOpponent: null };
