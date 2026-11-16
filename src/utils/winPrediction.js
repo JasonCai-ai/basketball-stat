@@ -7,11 +7,14 @@
 // 5. 用 Elo 利用历史 lineup 结果作为第二信号
 // 6. 最终胜率 = α × 技术统计模型 + (1-α) × Elo 模型
 
+// 将原场均时长权重的 1/3 平分给得分和正负值，保持总权重不变。
+const redistributedPlayTimeWeight = 0.23 / 3;
+
 export const DEFAULT_WEIGHTS = {
-  avgPoints: 0.47,      // 场均得分（不除时长，避免低出场球员被噪声抬高）
-  avgPlusMinus: 0.36,   // 场均正负值
+  avgPoints: 0.47 + redistributedPlayTimeWeight / 2, // 场均得分（不除时长，避免低出场球员被噪声抬高）
+  avgPlusMinus: 0.36 + redistributedPlayTimeWeight / 2, // 场均正负值
   foulsPerMin: 0.18,    // 犯规仍按每分钟（反映"鲁莽程度"与上场时长无关）
-  avgPlayTime: 0.23,    // 场均分钟：体现体力 + 队长用脚投票的能力评估
+  avgPlayTime: 0.23 - redistributedPlayTimeWeight, // 场均分钟：体现体力 + 队长用脚投票的能力评估
 };
 
 export const DEFAULT_OPTS = {
