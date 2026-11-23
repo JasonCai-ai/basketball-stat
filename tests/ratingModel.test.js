@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { buildRatingModel, computeParticipationElo, predictRatingMatchup, ratingConfidence, summarizeRatingHistory, RATING_CONFIG, displayedPower, ratingPowerType, blendPerformanceFeatures } from '../src/utils/ratingModel.js';
 import { rostersForPrediction, runBacktest } from '../scripts/backtestRatings.mjs';
+import { buildRatingModel as buildV4RatingModel } from '../reports/rating-backtest-2026/snapshots/ratingModel-v4.js';
 
 const close = (a, b, epsilon = 1e-10) => assert.ok(Math.abs(a - b) < epsilon, `${a} != ${b}`);
 const player = (name, team, minutes = 40, score = 10, plusMinus = 0) => ({ name, number: name, team, totalTime: minutes * 60, currentTime: 0, score, plusMinus, fouls: 2 });
@@ -180,10 +181,18 @@ test('真实数据回放与旧版聚合一致；沿用原温度且明确反馈�
     const v4 = recentSnapshot.forecasts.find(p => p.date === row.date);
     if (v4) close(row.recentCandidateP, v4.newP);
   }
+  // 固定排名仅回放诊断当日的数据，后续新增比赛不应与历史排名直接比较。
+  const dataDirectory = new URL('../public/data/2026/', import.meta.url);
+  const manifest = JSON.parse(fs.readFileSync(new URL('basketball_files_config.json', dataDirectory)));
+  const archivedGames = Object.entries(manifest).filter(([date]) => date <= diagnosis.asOf)
+    .map(([date, filename]) => ({ date, data: JSON.parse(fs.readFileSync(new URL(filename, dataDirectory))) }));
+  assert.equal(archivedGames.length, diagnosis.totalGames);
+  const archivedModel = buildV4RatingModel(archivedGames, { asOf: diagnosis.asOf });
+  const archivedPlayers = [...archivedModel.byName.values()];
   for (const expected of agreedExperiment.focusedPlayers) {
-    const row = result.rankings.all.find(p => p.name === expected.name);
-    assert.equal(row.previousPower, expected.power);
-    assert.equal(row.previousRank, expected.rank);
+    const row = archivedModel.byName.get(expected.name);
+    assert.equal(row.powerRating, expected.power);
+    assert.equal(1 + archivedPlayers.filter(p => p.powerRating > row.powerRating).length, expected.rank);
   }
   for (const row of result.rankings.all) {
     assert.ok(row.newPower >= 0 && row.newPower <= 100);
